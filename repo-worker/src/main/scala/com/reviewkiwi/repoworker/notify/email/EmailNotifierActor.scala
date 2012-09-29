@@ -18,12 +18,14 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffHtmlRepo
       println("[%s] by [%s]: %s".format(revCommit.getName, revCommit.getAuthorIdent.getName, revCommit.getShortMessage))
       val diffs = differ.diffWithParent(git, revCommit)
 
-      val body = htmlReporter.build(git, diffs)
-      // foreach zainteresowany
+      val body = htmlReporter.build(git, revCommit, diffs)
+
+      // foreach zainteresowany osobnik
       reportSender ! SendEmail(
-        To("ktoso@project13.pl"), // todo hardcoded
-        topic = "Commit ["+revCommit.getName+"] by " + revCommit.getAuthorIdent.getName,
-        body = body
+        "ktoso@project13.pl", // todo hardcoded
+        topic = revCommit.getAuthorIdent.getName + " pushed [" + revCommit.getShortMessage + "]",
+        body = body,
+        replyTo = Some(revCommit.getAuthorIdent.getEmailAddress)
       )
 
   }

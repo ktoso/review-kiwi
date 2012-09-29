@@ -6,15 +6,11 @@ import net.liftweb.common.Full
 import javax.mail.{PasswordAuthentication, Authenticator}
 import xml.XML
 import net.liftweb.util.Mailer.From
+import com.reviewkiwi.common.email.EmailSender
+import scalaz.Scalaz._
 
-class EmailSenderActor extends Actor {
+class EmailSenderActor(emailSender: EmailSender) extends Actor {
 
-  val printEmail = true // todo debug stuff
-  val reallySendEmails = true // todo debug stuff
-
-  val FromKiwi = From("review-kiwi@project13.pl", Some("Review Kiwi"))
-
-  // todo that's a mock
   object config {
     val mailerUsername = "test-mailer@project13.pl"
     val mailerPassword = "bananbananban"
@@ -32,7 +28,8 @@ class EmailSenderActor extends Actor {
         "mail.smtp.host" -> "smtp.gmail.com",
         "mail.smtp.port" -> 587.toString,
         "mail.smtp.auth" -> true.toString,
-        "mail.smtp.starttls.enable" -> true.toString)
+        "mail.smtp.starttls.enable" -> true.toString
+      )
 
       case host => Map(
         "mail.smtp.host" -> host,
@@ -44,18 +41,9 @@ class EmailSenderActor extends Actor {
 
 
   def receive = {
-    case SendEmail(to, topic, body) =>
-      import Mailer._
+    case SendEmail(to, title, body, replyTo) =>
       initMailer
 
-      if (printEmail)
-        println("body = " + body)
-
-      if(reallySendEmails)
-        blockingSendMail(
-          FromKiwi,
-          Subject(topic),
-          XHTMLMailBodyType(XML.loadString(body)) :: List(to): _*
-        )
+      emailSender.send(to, title, body, replyTo = replyTo)
   }
 }

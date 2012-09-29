@@ -14,7 +14,7 @@ class FreshCommitsExtractor extends Logging {
     val git = Git.open(repoDir)
 
     val commits = git.log
-      .setMaxCount(3)
+      .setMaxCount(1)
       .call()
 
     logger.info("Got commits from [%s]".format(repoDir))

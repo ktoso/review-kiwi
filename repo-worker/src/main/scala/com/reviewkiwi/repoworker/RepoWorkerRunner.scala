@@ -9,14 +9,16 @@ import notify.cli.CliNotifierActor
 import java.net.URI
 import notify.email.{EmailSenderActor, EmailNotifierActor}
 import notify.template.html.LineByLineDiffHtmlReportReporter
+import com.reviewkiwi.common.email.EmailSender
 
-object RepoWorker extends App {
+object RepoWorkerRunner extends App {
 
   val system = ActorSystem("RepoWorkerSystem")
 
   // impls
   val cloner = new GitCloner
   val differ = new GitDiffer
+  val emailSender = new EmailSender
   val extractor = new FreshCommitsExtractor
   val lineByLineDiffHtmlReporter = new LineByLineDiffHtmlReportReporter
 
@@ -26,7 +28,10 @@ object RepoWorker extends App {
     name = "cli-notifier"
   )
 
-  val emailSenderActor = system.actorOf(Props[EmailSenderActor], name = "email-sender")
+  val emailSenderActor = system.actorOf(
+    Props(new EmailSenderActor(emailSender)),
+  name = "email-sender"
+  )
   val emailNotifierActor = system.actorOf(
     Props(new EmailNotifierActor(differ, lineByLineDiffHtmlReporter, emailSenderActor)),
     name = "email-notifier"

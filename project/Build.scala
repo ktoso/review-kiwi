@@ -37,7 +37,11 @@ object ReviewKiwiBuild extends Build {
     file("common"),
     settings = buildSettings ++
       Seq(
-        libraryDependencies ++= Seq(jGit, mongo, rogue, liftMongoRecord) ++ testing ++ logging
+        libraryDependencies ++=
+          Seq(jGit, mongo, rogue, liftMongoRecord) ++
+            Seq(gravatar, apacheCommonsEmail, scalaz) ++
+            scalate ++
+            testing ++ logging
       )
   )
 

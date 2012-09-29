@@ -4,20 +4,24 @@ import org.eclipse.jgit.api.Git
 import com.weiglewilczek.slf4s.Logging
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.treewalk.{AbstractTreeIterator, CanonicalTreeParser}
-import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.diff.{DiffFormatter, DiffConfig, DiffAlgorithm, DiffEntry}
 import org.eclipse.jgit.revwalk.DepthWalk.RevWalk
 import collection.JavaConverters._
 import org.eclipse.jgit.lib.{ObjectId, Repository}
+import com.reviewkiwi.common.git.GitWalks
+import java.io.ByteArrayOutputStream
 
-class GitDiffer extends Logging {
+class GitDiffer extends Logging
+  with GitWalks {
 
   def diffWithParent(git: Git, c: RevCommit): List[DiffEntry] = {
-    val repo = git.getRepository
+    implicit val repo = git.getRepository
 
-    val walk = new RevWalk(repo, 2)
-    val commit = walk.parseCommit(c)
-    val parent = walk.parseCommit(commit.getParent(0))
-    walk.dispose()
+    val (commit, parent) = withWalk(depth =  2) { walk =>
+      val commit = walk.parseCommit(c)
+      val parent = walk.parseCommit(commit.getParent(0))
+      (commit, parent)
+    }
 
     val oldTreeIter = getTreeIterator(repo, parent)
     val newTreeIter = getTreeIterator(repo, commit)

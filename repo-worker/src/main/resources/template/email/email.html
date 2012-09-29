@@ -67,10 +67,14 @@
 <body>
 <div id="wrapper">
     <div class="message">
-        <img src="{{gravatarUrl}}" alt="author image"/>
-        {{commitMessage}}
+        <img src="{{authorGravatarUrl}}" alt="author image"/>
+        <strong>{{authorName}}</strong>: <br/>
+
+        <div class="commit-message">{{commitMessage}}</div>
     </div>
-    {{diff}}
+    <div>
+        {{diff}}
+    </div>
 </div>
 </body>
 </html>

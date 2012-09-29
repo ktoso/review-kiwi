@@ -2,9 +2,7 @@ package com.reviewkiwi.repoworker.fetch
 
 import akka.actor._
 import com.reviewkiwi.repoworker.data.GitRepoLocation
-import com.reviewkiwi.repoworker.fetcher.{Changeset, NewCommit}
-import org.eclipse.jgit.api.Git
-import com.google.common.hash.Hashing
+import com.reviewkiwi.repoworker.fetcher.NewCommit
 import com.reviewkiwi.repoworker.git.{FreshCommitsExtractor, GitCloner}
 import collection.JavaConversions._
 

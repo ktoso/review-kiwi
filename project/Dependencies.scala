@@ -19,7 +19,6 @@ object Dependencies {
   val restfb                = "com.restfb"             %  "restfb"                % "1.6.9"
   val jGit                  = "org.eclipse.jgit"       %  "org.eclipse.jgit"      % "1.3.0.201202151440-r"
   val spyMemcached          = "spy"                    %  "spymemcached"          % "2.8.1"
-  val scalatePage           = "org.fusesource.scalate" %  "scalate-page"          % "1.5.2"
   val scalamd               = "org.fusesource.scalamd" %  "scalamd"               % "1.5.2"
   val zooKeeper             = ("org.apache.zookeeper"  %  "zookeeper"             % "3.3.5")
     .exclude("com.sun.jdmk", "jmxtools")
@@ -43,12 +42,16 @@ object Dependencies {
   val sprayServer           = "cc.spray"              %   "spray-server"          % "0.9.0"
   val sprayClient           = "cc.spray"              %   "spray-client"          % "0.9.0"
 
+  // Scalate - templates
+  val scalateWikitext = "org.fusesource.scalate" % "scalate-wikitext" % "1.5.3"
+  val scalatePage     = "org.fusesource.scalate" % "scalate-page"     % "1.5.3"
+  val scalateTest     = "org.fusesource.scalate" % "scalate-test"     % "1.5.3" % "test"
+  val scalate = Seq(scalateWikitext, scalatePage, scalateTest)
+
   // Utils
   val scalaToolsTime        = "org.scala-tools.time"  %%  "time"                  % "0.5" intransitive()
   val jodaTime              = "joda-time"             %   "joda-time"             % "2.1"
   val jodaTimeConvert       = "org.joda"              %   "joda-convert"          % "1.2"
-  val apacheCommonsNet      = "commons-net"           %   "commons-net"           % "3.0.1"
-  val apacheCommonsIo       = "commons-io"            %   "commons-io"            % "2.2"
   val scalaz                = "org.scalaz"            %% "scalaz-core"            % "6.0.4"
   val httpClient            = "org.apache.httpcomponents" % "httpclient"          % "4.2.1"
 
@@ -56,6 +59,14 @@ object Dependencies {
   //val smlCommonUtil         = "pl.softwaremill.common" %  "softwaremill-util"     % "64-SNAPSHOT"
   val scarg                 = "de.downgra"            % "scarg-core_2.8.1"        % "1.0.0-SNAPSHOT" from "http://up.project13.pl/files/scarg-core_2.8.1-1.0.0-SNAPSHOT.jar" // todo remove me, hack hack...
   val scopt                 = "com.github.scopt"     %% "scopt"                   % "2.0.0"
+
+  // Gravatar
+  val gravatar              = "de.bripkens"           % "gravatar4java"           % "1.1"
+
+  // Apache Commonds
+  val apacheCommonsEmail    = "org.apache.commons"    % "commons-email"           % "1.2"
+  val apacheCommonsNet      = "commons-net"           % "commons-net"             % "3.0.1"
+  val apacheCommonsIo       = "commons-io"            % "commons-io"              % "2.2"
 
   // Amazon Web Services
   val amazonJavaSdk         = "com.amazonaws"         %   "aws-java-sdk"          % "1.3.19"
@@ -81,7 +92,6 @@ object Dependencies {
   // Testing
   val scalatest             = "org.scalatest"          %% "scalatest"             % "1.8.RC1"
   val mockito               = "org.mockito"            %  "mockito-core"          % "1.8.5"
-  val scalateTest           = "org.fusesource.scalate" %  "scalate-test"          % "1.5.2"
 
   val testing               = Seq(scalatest % "test", mockito % "test")
 
