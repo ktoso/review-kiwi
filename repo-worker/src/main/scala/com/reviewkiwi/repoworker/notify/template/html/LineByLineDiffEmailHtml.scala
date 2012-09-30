@@ -10,6 +10,7 @@ import com.reviewkiwi.repoworker.notify.template.css.CssImages
 import org.apache.commons.io.FilenameUtils
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
+import java.util.Date
 
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar
@@ -26,7 +27,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
       .replace("{{authorGravatarUrl}}", getSmallGravatarUrl(commit.getAuthorIdent.getEmailAddress))
       .replace("{{authorName}}", commit.getAuthorIdent.getName)
       .replace("{{authorEmail}}", commit.getAuthorIdent.getEmailAddress)
-      .replace("{{commitDateTime}}", formatDate(commit.getCommitTime))
+      .replace("{{commitDateTime}}", formatDate(commit.getAuthorIdent.getWhen))
       .replace("{{messageFirstLine}}", commitMessageLines.head)
       .replace("{{messageFull}}", commitMessageLines.drop(1).mkString("<br/>"))
       .replace("{{commitIdAbbrev}}", commit.abbreviate(8).name()) // todo use object reader!
@@ -50,7 +51,8 @@ class LineByLineDiffEmailHtml extends HtmlReport
 
   // Sunday, 2 May 2010 @ 19:34
   val CommitDateFormat = DateTimeFormat.forPattern("EE, dd MMMM YYYY @ HH:mm")
-  def formatDate(time: Int): String = {
+
+  def formatDate(time: Date): String = {
     CommitDateFormat.print(new DateTime(time))
   }
 }
