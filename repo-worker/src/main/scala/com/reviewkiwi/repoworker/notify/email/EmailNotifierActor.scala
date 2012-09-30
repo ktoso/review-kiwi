@@ -23,7 +23,7 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
       // foreach zainteresowany osobnik
       reportSender ! SendEmail(
         "ktoso@project13.pl", // todo hardcoded
-        topic = revCommit.getAuthorIdent.getName + " pushed [" + revCommit.getShortMessage + "]",
+        topic = revCommit.getAuthorIdent.getName + " pushed [" + revCommit.getFullMessage.split("\n").head + "]",
         body = body,
         replyTo = Some(revCommit.getAuthorIdent.getEmailAddress)
       )

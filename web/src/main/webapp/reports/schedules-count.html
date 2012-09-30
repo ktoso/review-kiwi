@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Schedule collections status</title>
+</head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+    <h1>Schedule collections status</h1>
+
+    <div lift="scheduleCollections.list">
+        <div>
+            The entries below are schedule collections for each country and the number of items in them.
+        </div>
+
+        <table>
+            <tr>
+                <th>Collection Name</th>
+                <th>Country</th>
+                <th>Movies Count</th>
+                <th>Total Count</th>
+            </tr>
+            <tr class="collection_row">
+                <td class="name"></td>
+                <td class="country"></td>
+                <td>
+                    <div class="lift:lazy-load">
+                        <span class="movies_count"></span>
+                    </div>
+                </td>
+                <td>
+                    <div class="lift:lazy-load">
+                        <span class="total_count"></span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

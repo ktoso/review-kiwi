@@ -23,8 +23,6 @@ class GitCloner extends Logging {
   }
 
   def cleanDir(dir: File): Boolean = {
-    require(dir.isDirectory, "Should only be used on directories, which [%s] is not.".format(dir))
-
     import sys.process._
     ("rm -rf " + dir.getAbsolutePath).! == 0
   }

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Rovi</title>
+</head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+    <h1>Program <-> show matching</h1>
+
+    <span lift="scheduleMatchCandidates.list">
+        <div>
+            The entries below are candidates for mapping shows and programs.
+            Total entries: <span class="total"></span>
+        </div>
+
+        <div>
+            Once a mapping is rejected, it won't be proposed in the future.
+        </div>
+
+        <form method="POST">
+            <table>
+                <tr>
+                    <th>Show id</th>
+                    <th>Show name</th>
+                    <th>Program id</th>
+                    <th>Program name</th>
+                    <th>Actions</th>
+                </tr>
+                <tr class="candidate_row">
+                    <td class="show_id"></td>
+                    <td class="show_name"></td>
+                    <td class="program_id"></td>
+                    <td class="program_name"></td>
+                    <td>
+                        <input type="submit" class="accept" value="Accept" />
+                        <input type="submit" class="reject" value="Reject" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </span>
+</div>
+</body>
+</html>

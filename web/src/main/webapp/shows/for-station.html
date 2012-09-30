@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Shows For Station</title>
+</head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+    <h1>Shows</h1>
+
+    <div>
+        <div lift="forStation.stationsList"></div>
+        <div>
+            Shows for station <span id="selected"></span>.
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Start time</th>
+                    <th>Name</th>
+                    <th>Episode Name</th>
+                    <th>Program Type</th>
+                    <th>Genres</th>
+                </tr>
+            </thead>
+            <tbody id="schedule_container">
+                <tr class="schedule_row" lift="forStation.list">
+                    <td class="start_time"></td>
+                    <td class="name"></td>
+                    <td class="episode_name"></td>
+                    <td class="program_type"></td>
+                    <td class="genres"></td>
+                    <td class="ops"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

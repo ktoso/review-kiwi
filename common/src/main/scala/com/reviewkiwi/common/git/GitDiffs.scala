@@ -4,12 +4,15 @@ import org.eclipse.jgit.diff.{DiffFormatter, DiffEntry}
 import java.io.ByteArrayOutputStream
 import org.eclipse.jgit.lib.Repository
 import xml.Elem
+import com.reviewkiwi.common.css.CssStyles
 
 trait GitDiffs {
 
   implicit def presentDiffEntry(d: DiffEntry)(implicit repo: Repository) = new DiffEntryPresenter(d)(repo)
 
   class DiffEntryPresenter(diff: DiffEntry)(repo: Repository) {
+
+    val InfoLine = """@@ -\d+,\d+ \+\d+,\d+ @@""".r
 
     def asDiffHTML: String = {
       asDiffString
@@ -36,13 +39,23 @@ trait GitDiffs {
 
     private def asDiffNode(line: String): Elem = {
       if(line.size < 2) return <pre></pre>
-      val realLine = line.drop(1)
+      val realLine = line.drop(1) match {
+        case l if line.trim.isEmpty => "&nbsp;"
+        case l => l
+      }
 
       line.head match {
-        case ' ' => <pre>{realLine}</pre>
-        case '+' => <pre style="insert">{realLine}</pre>
-        case '-' => <pre style="delete">{realLine}</pre>
-        case  _  => <pre style="info">{realLine}</pre>
+        case '+' =>
+          <pre style={CssStyles.insertLine}>{realLine}</pre>
+
+        case '-' =>
+          <pre style={CssStyles.deleteLine}>{realLine}</pre>
+
+        case _ if InfoLine.pattern.matcher(line).matches() =>
+          <pre class={CssStyles.infoLine}>{line}</pre>
+
+        case _ =>
+          <pre style={CssStyles.normalLine}>{realLine}</pre>
       }
     }
   }

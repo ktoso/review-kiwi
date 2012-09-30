@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Rovi</title>
+</head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+    <h1>Social show creator</h1>
+
+    <div id="start" lift="roviSocialShowCreator.setupStart">
+        <form method="POST" class="lift:form.ajax">
+            <table>
+                <tr>
+                    <td>Show name:</td>
+                    <td><span id="start_show_name"></span></td>
+                </tr>
+                <tr>
+                    <td>Facebook page URL:</td>
+                    <td><span id="start_facebook_page_url"></span></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td><span id="start_submit"></span></td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <div id="result">
+
+    </div>
+</div>
+</body>
+</html>
