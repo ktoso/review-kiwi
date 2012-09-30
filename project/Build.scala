@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import ProguardPlugin._
+import com.github.siasia.WebPlugin._
 
 import com.reviewkiwi.build._
 
@@ -59,4 +60,26 @@ object ReviewKiwiBuild extends Build {
         mainClass in (Compile, packageBin) := Some("com.reviewkiwi.repoworker.RepoWorker")
       )
   ) dependsOn (common)
+
+
+  lazy val lifted = Project(
+    "web-kiwi",
+    file("web"),
+    settings = buildSettings ++ Seq(
+      ivyXML :=
+        <dependencies>
+            <exclude org="commons-logging" artifact="commons-logging" />
+        </dependencies>,
+      libraryDependencies ++= {
+        Seq(
+          "net.liftweb" %% "lift-webkit"  % liftVersion % "compile->default",
+          "org.eclipse.jetty" % "jetty-webapp" % "8.0.1.v20110908" % "container",
+          "javax.servlet" % "servlet-api" % "2.5" % "provided",
+          akkaActor, akkaSlf4j, akkaTestKit,scalaz,
+          mysqlConnector,rogue,liftMongoRecord,liftSquerylRecord,zooKeeperClient,mongo,logback
+        )
+      }
+    ) ++ webSettings
+  ) dependsOn(common)
+
 }

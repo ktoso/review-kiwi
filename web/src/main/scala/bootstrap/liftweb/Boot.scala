@@ -1,6 +1,5 @@
 package bootstrap.liftweb
 
-import akka.config.{Configuration, Config}
 import net.liftweb._
 
 import common._
@@ -9,13 +8,9 @@ import auth.HttpBasicAuthentication
 import sitemap._
 import Loc._
 import java.io.File
-import tv.yap.mongo.{MongoConfig, MongoInit}
-import tv.yap.mysql.{MysqlConfig, MysqlInit}
-import tv.yap.model.user._
 import org.squeryl.PrimitiveTypeMode._
-import tv.yap.model.messaging.{RejectedKeyword, YapPoll}
-import tv.yap.model.YapCountry
-import code.snippet.ShowcardImageUploadHandler
+
+import code.api.github._
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -24,23 +19,23 @@ import code.snippet.ShowcardImageUploadHandler
 class Boot {
 
   def yapInit {
-    val location = System.getenv("LIFTED_AKKA_CONF")
-    if ( location == null ) {
-      throw new Exception("Set the LIFTED_AKKA_CONF environment variable to point to the akka configuration file")
-    }
-    if(!new File(location).exists() ) {
-      throw new Exception("Config file '%s' does not exists".format(location))
-    }
-    System.setProperty("akka.config",location)
-    val rootConfig = Config.config
-
-    MongoInit.init(MongoConfig.fromAkkaConfig(rootConfig))
-
-    MysqlInit.initLift(new MysqlConfig {
-      override val rootConfig: Configuration = Config.config
-    })
-
-    LiftedConfig.initFromAkkaConfig(rootConfig)
+//    val location = System.getenv("LIFTED_AKKA_CONF")
+//    if ( location == null ) {
+//      throw new Exception("Set the LIFTED_AKKA_CONF environment variable to point to the akka configuration file")
+//    }
+//    if(!new File(location).exists() ) {
+//      throw new Exception("Config file '%s' does not exists".format(location))
+//    }
+//    System.setProperty("akka.config",location)
+//    val rootConfig = Config.config
+//
+//    MongoInit.init(MongoConfig.fromAkkaConfig(rootConfig))
+//
+//    MysqlInit.initLift(new MysqlConfig {
+//      override val rootConfig: Configuration = Config.config
+//    })
+//
+//    LiftedConfig.initFromAkkaConfig(rootConfig)
   }
 
   def boot {
@@ -52,26 +47,11 @@ class Boot {
 
     LiftRules.snippetNamesToSearch.default.set((s:String) => LiftRules.searchSnippetsWithRequestPath(s))
 
-
     // Build SiteMap
     val entries = List(
       Menu.i("Home") / "index",
-      Menu.i("EPG") / "reports" / "index" submenus (
-        Menu("Schedules Count") / "reports" / "schedules-count" ,
-        Menu("Providers") / "reports" / "epg-providers"),
-      Menu.i("Shows") / "shows" / "list" submenus (
-        Menu("Merge shows") / "shows" / "merge",
-        Menu("Merge requests status") / "shows" / "merge-requests",
-        Menu("for-station") / "shows" / "for-station"  >> Hidden,
-        Menu("assets") / "shows" / "assets"  >> Hidden)
-    ) ::: YapPoll.menus ::: RejectedKeyword.menus ::: YapCountry.menus:::
-    List(
-      Menu.i("Rovi") / "rovi" / "index" submenus (
-        Menu(" program-show matching ") / "rovi" / "program_show_matching",
-          Menu(" social show creator") / "rovi" / "social_show_creator"
-      ),
-      Menu("Operations") / "operations" / "index",
-      Menu(" Runner Events ") / "runner-events" / "index"
+      Menu.i("Repos") / "repos" / "index",
+      Menu.i("Commits") / "commits" / "index"
     )
 
     // set the sitemap.  Note if you don't want access control for
@@ -103,32 +83,7 @@ class Boot {
 
     LiftRules.ajaxPostTimeout = 1000*60 // 60 seconds
 
-    LiftRules.authentication = HttpBasicAuthentication("lift") {
-      case (username, password, req) => {
-        transaction{ ar.YapUser.findByCredentials(username,password)} match {
-          case Some(user) if user.isAdmin.is => {
-            true
-          }
-          case _ => false
-        }
-      }
-    }
-
-    LiftRules.statelessRewrite.append {
-      case RewriteRequest(ParsePath(
-      "show-groups" :: "edit" :: gid :: Nil, "", true, false), GetRequest, http) =>
-      RewriteResponse("show-groups" :: "edit" :: Nil,
-        Map("id" ->gid))
-    }
-
-    LiftRules.statelessRewrite.append {
-      case RewriteRequest(ParsePath(
-      "shows" :: sid :: "assets" :: Nil, "", true, false), GetRequest, http) =>
-        RewriteResponse("shows" :: "assets" :: Nil,
-          Map("yap_show_id" ->sid))
-    }
-
-    LiftRules.dispatch.append(ShowcardImageUploadHandler)
+    LiftRules.dispatch.append(GitHubAuthCallbackApiHandler)
 
   }
 }
