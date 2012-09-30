@@ -8,7 +8,7 @@ import git.{GitDiffer, FreshCommitsExtractor, GitCloner}
 import notify.cli.CliNotifierActor
 import java.net.URI
 import notify.email.{EmailSenderActor, EmailNotifierActor}
-import notify.template.html.LineByLineDiffHtmlReportReporter
+import notify.template.html.LineByLineDiffEmailHtml
 import com.reviewkiwi.common.email.EmailSender
 
 object RepoWorkerRunner extends App {
@@ -20,7 +20,7 @@ object RepoWorkerRunner extends App {
   val differ = new GitDiffer
   val emailSender = new EmailSender
   val extractor = new FreshCommitsExtractor
-  val lineByLineDiffHtmlReporter = new LineByLineDiffHtmlReportReporter
+  val lineByLineDiffHtmlReporter = new LineByLineDiffEmailHtml
 
 
   val cliNotifierActor = system.actorOf(

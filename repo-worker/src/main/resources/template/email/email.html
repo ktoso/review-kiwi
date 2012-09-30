@@ -1,23 +1,23 @@
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-    <meta charset="utf-8"/>
-    <style>
-        body {
-            text-align: center;
-        }
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
 
+    <style type="text/css">
         #wrapper {
             display: inline-block;
             margin-top: 1em;
             min-width: 800px;
             text-align: left;
+            max-width: 80%;
         }
 
         h2 {
             background: #fafafa;
             background: -moz-linear-gradient(#fafafa, #eaeaea);
             background: -webkit-linear-gradient(#fafafa, #eaeaea);
-            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa',endColorstr='#eaeaea')";
             border: 1px solid #d8d8d8;
             border-bottom: 0;
             color: #555;
@@ -45,36 +45,136 @@
             font-size: 12px;
             line-height: 1.4em;
             text-indent: 0.5em;
+            padding-left: 15px;
         }
 
         .file {
             color: #aaa;
         }
 
-        .delete {
+        pre .delete {
             background-color: #fdd;
         }
 
-        .insert {
+        pre .insert {
             background-color: #dfd;
         }
 
-        .info {
+        pre .info {
             color: #a0b;
         }
+
+        img .author-gravatar {
+            width: 50px;
+            height: 50px;
+            padding-left: 15px;
+        }
+
+        div .message-first-line {
+            font-weight: bold;
+            padding-bottom: 0.5em;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        span .pre {
+            font-family: "Bitstream Vera Sans Mono", Courier, monospace;
+            padding: 0;
+            margin: 0;
+        }
+
+        div .triangle-border {
+            position: relative;
+            padding: 15px;
+            margin: 1em 0 3em;
+            border: 5px solid #5a8f00;
+            color: #333;
+            background: #fff;
+            /* css3 */
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+        }
+
+        div .triangle-border:before {
+            content: "";
+            position: absolute;
+            bottom: -20px; /* value = - border-top-width - border-bottom-width */
+            left: 40px; /* controls horizontal position */
+            border-width: 20px 20px 0;
+            border-style: solid;
+            border-color: #5a8f00 transparent;
+            /* reduce the damage in FF3.0 */
+            display: block;
+            width: 0;
+        }
+
+            /* creates the smaller  triangle */
+        div .triangle-border:after {
+            content: "";
+            position: absolute;
+            bottom: -13px; /* value = - border-top-width - border-bottom-width */
+            left: 47px; /* value = (:before left) + (:before border-left) - (:after border-left) */
+            border-width: 13px 13px 0;
+            border-style: solid;
+            border-color: #fff transparent;
+            /* reduce the damage in FF3.0 */
+            display: block;
+            width: 0;
+        }
+
+            /* creates the larger triangle */
+        div .triangle-border.top:before {
+            top: -20px; /* value = - border-top-width - border-bottom-width */
+            bottom: auto;
+            left: 18px; /* controls horizontal position */
+            right: auto;
+            border-width: 0 20px 20px;
+        }
+
+            /* creates the smaller  triangle */
+        .triangle-border.top:after {
+            top: -13px; /* value = - border-top-width - border-bottom-width */
+            bottom: auto;
+            left: 25px; /* value = (:before right) + (:before border-right) - (:after border-right) */
+            right: auto;
+            border-width: 0 13px 13px;
+        }
+
     </style>
+
 </head>
 <body>
+
 <div id="wrapper">
     <div class="message">
-        <img src="{{authorGravatarUrl}}" alt="author image"/>
-        <strong>{{authorName}}</strong>: <br/>
+        <div class="author-box">
+            <div>
+                <img src="{{authorGravatarUrl}}" alt="author TODO FIX" class="author-gravatar"/>
+                <strong>{{authorName}}</strong>
+                pushed
+                <span class="pre">[<a href="{{githubCommitUrl}}">{{commitIdAbbrev}}</a>]</span>
+                to
+                <a href="{{githubRepoUrl}}">{{githubRepoName}}</a>
+            </div>
 
-        <div class="commit-message">{{commitMessage}}</div>
+            <div class="triangle-border top">
+                <div class="message-first-line">
+                    {{messageFirstLine}}
+                </div>
+                <div class="message-full">
+                    {{messageFull}}
+                </div>
+            </div>
+        </div>
     </div>
+
     <div>
-        {{diff}}
+        {{content}}
     </div>
 </div>
+
 </body>
 </html>

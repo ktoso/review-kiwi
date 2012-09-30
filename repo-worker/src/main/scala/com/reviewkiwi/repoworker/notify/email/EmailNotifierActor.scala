@@ -6,10 +6,10 @@ import org.eclipse.jgit.api.Git
 import com.reviewkiwi.repoworker.git.GitDiffer
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
-import com.reviewkiwi.repoworker.notify.template.html.LineByLineDiffHtmlReportReporter
+import com.reviewkiwi.repoworker.notify.template.html.LineByLineDiffEmailHtml
 import net.liftweb.util.Mailer.To
 
-class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffHtmlReportReporter, reportSender: ActorRef) extends Actor {
+class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtml, reportSender: ActorRef) extends Actor {
 
   def receive = {
     case NewCommit(revCommit, repoDir) =>

@@ -39,7 +39,7 @@ object ReviewKiwiBuild extends Build {
       Seq(
         libraryDependencies ++=
           Seq(jGit, mongo, rogue, liftMongoRecord) ++
-            Seq(gravatar, apacheCommonsEmail, scalaz) ++
+            Seq(gravatar, apacheCommonsEmail, scalaz, guava) ++
             scalate ++
             testing ++ logging
       )
@@ -50,7 +50,7 @@ object ReviewKiwiBuild extends Build {
     file("repo-worker"),
     settings = buildSettings ++ akkaContinuationsSettings ++
       Seq(
-        libraryDependencies ++= Seq(liftMongoRecord, guava, rogue, scalaz) ++
+        libraryDependencies ++= Seq(liftMongoRecord, rogue) ++
           akkaFull ++
           testing ++
           Seq()

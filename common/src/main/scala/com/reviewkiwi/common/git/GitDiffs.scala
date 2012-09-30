@@ -40,9 +40,9 @@ trait GitDiffs {
 
       line.head match {
         case ' ' => <pre>{realLine}</pre>
-        case '+' => <pre class="insert">{realLine}</pre>
-        case '-' => <pre class="delete">{realLine}</pre>
-        case  _  => <pre class="info">{realLine}</pre>
+        case '+' => <pre style="insert">{realLine}</pre>
+        case '-' => <pre style="delete">{realLine}</pre>
+        case  _  => <pre style="info">{realLine}</pre>
       }
     }
   }

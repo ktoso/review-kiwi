@@ -9,7 +9,7 @@ class CliProgressMonitor extends ProgressMonitor {
   var totalTasks = 0
   var currentTask = 0
   var maybeTitle: Option[String] = None
-  var progress: Option[ProgressPrinter] = _
+  var progress: Option[ProgressPrinter] = None
 
   def start(totalTasks: Int) {
     this.totalTasks = totalTasks

@@ -26,6 +26,7 @@ class EmailSender {
     email.setAuthentication(config.mailerUsername, config.mailerPassword)
     email.setSmtpPort(config.mailerPort)
     email.setTLS(config.mailerTLS)
+    email.setCharset("UTF-8")
 
     email.setSubject(title)
 
