@@ -63,6 +63,12 @@ object Dependencies {
   // Gravatar
   val gravatar              = "de.bripkens"           % "gravatar4java"           % "1.1"
 
+  // github
+  val gitHub                = "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.0"
+
+  // dispatch
+  val dispatch              = "net.databinder.dispatch" %% "core" % "0.9.1"
+
   // Apache Commonds
   val apacheCommonsEmail    = "org.apache.commons"    % "commons-email"           % "1.2"
   val apacheCommonsNet      = "commons-net"           % "commons-net"             % "3.0.1"

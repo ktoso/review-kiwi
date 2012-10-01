@@ -8,9 +8,9 @@ import auth.HttpBasicAuthentication
 import sitemap._
 import Loc._
 import java.io.File
-import org.squeryl.PrimitiveTypeMode._
 
 import code.api.github._
+import com.reviewkiwi.model.mongo.{Config, MongoConfig, MongoInit}
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -18,29 +18,15 @@ import code.api.github._
  */
 class Boot {
 
-  def yapInit {
-//    val location = System.getenv("LIFTED_AKKA_CONF")
-//    if ( location == null ) {
-//      throw new Exception("Set the LIFTED_AKKA_CONF environment variable to point to the akka configuration file")
-//    }
-//    if(!new File(location).exists() ) {
-//      throw new Exception("Config file '%s' does not exists".format(location))
-//    }
-//    System.setProperty("akka.config",location)
-//    val rootConfig = Config.config
-//
-//    MongoInit.init(MongoConfig.fromAkkaConfig(rootConfig))
-//
-//    MysqlInit.initLift(new MysqlConfig {
-//      override val rootConfig: Configuration = Config.config
-//    })
-//
-//    LiftedConfig.initFromAkkaConfig(rootConfig)
+  def kiwiInit {
+    val config = Config.readFromProperties()
+
+    MongoInit.init(config)
   }
 
   def boot {
 
-    yapInit
+    kiwiInit
 
     // where to search snippet
     LiftRules.addToPackages("code")
