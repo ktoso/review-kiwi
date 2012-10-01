@@ -1,5 +1,6 @@
 package com.reviewkiwi.model
 
+import mongo.MongoConfig.KiwiMongoIdentifier
 import net.liftweb.record.field._
 import scala.Some
 import net.liftweb.json.JsonDSL._
@@ -30,7 +31,7 @@ class Repository private() extends MongoRecord[Repository] with ObjectIdPk[Repos
 }
 
 object Repository extends Repository with MongoMetaRecord[Repository] {
-//  override def mongoIdentifier = UserShowMongoIdentifier
-//  override def collectionName = "repositories"
+  override def mongoIdentifier = KiwiMongoIdentifier
+  override def collectionName = "repositories"
 
 }
