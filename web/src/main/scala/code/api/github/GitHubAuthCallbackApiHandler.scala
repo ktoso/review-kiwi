@@ -7,9 +7,15 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.http.InMemoryResponse
 import com.weiglewilczek.slf4s.Logging
-import org.eclipse.egit.github.core.client.GitHubClient
+import org.eclipse.egit.github.core.client.{GitHubRequest, GitHubResponse, GitHubClient}
+import com.reviewkiwi.model.{Repository, KiwiUser}
+import scalaz.Scalaz._
+import org.eclipse.egit.github.core.service.RepositoryService
+import collection.JavaConversions._
 
 object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
+
+  val AccessTokenResponse = """access_token=(\w+)&token_type=(\w+)""".r
 
   val ErrorResponse = ("error" -> "failed to auth with github") ~ ("code" -> "500")
 
@@ -40,13 +46,39 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
       .addQueryParameter("client_secret", OAuth.clientSecret)
       .addQueryParameter("code", code)
       .addQueryParameter("state", "12345")
-      .addQueryParameter("redirect_uri", "http://review.kiwi.project13.pl/registered")
 
-    val response = Http(oauthGetAccessToken OK as.String)
+    val response = Http(oauthGetAccessToken OK as.String)()
 
-    // todo get username, persist "KiwiUser"... use GithubClient
+    response match {
+      case AccessTokenResponse(token, tokenType) =>
+        val github = new GitHubClient()
+        github.setOAuth2Token(token)
+        val ghUser = github.getUser
 
-    Some(("response" -> response()))
+        val repositoryService = new RepositoryService(github)
+        val repos = repositoryService.getRepositories map { repo =>
+          // todo findOrUpdate
+          val kiwiRepo = Repository.createRecord
+            .name(repo.getName)
+            .fetchUrl(repo.getCloneUrl)
+            .githubRepoId(repo.getId)
+            .save(true)
+
+          kiwiRepo.githubRepoId.get
+        }
+
+        KiwiUser.createRecord
+          .name(ghUser)
+          .oauthToken(token)
+          .oauthTokenType(tokenType)
+          .repos(repos.flatten.toList)
+          .save(true)
+
+        Some(("user" -> ghUser))
+
+      case _ => None
+    }
+
   } catch {
     case ex: Exception =>
       logger.info("Failed to auth...", ex)

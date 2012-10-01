@@ -14,6 +14,8 @@ class Repository private() extends MongoRecord[Repository] with ObjectIdPk[Repos
 
   lazy val meta = Repository
 
+  object githubRepoId extends OptionalLongField(this) with UnderscoreName
+
   object fetchUrl extends StringField(this, 1000) with UnderscoreName {
     override def apply(in: MyType) = {
       super.apply(in)
