@@ -58,7 +58,7 @@ case class GithubRepositoryPayload(
   description: String,
   watchers: Int,
   forks: Int,
-  `private`: Int,
+  `private`: Boolean,
   owner: GithubUserPayload
 )
 

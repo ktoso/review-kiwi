@@ -28,7 +28,7 @@ object GitHubPostReceiveApiHandler extends RestHelper with Logging {
   }
 
   def enqueueFetchRequest(req: Req): Option[JValue] = try {
-    val body = new String(req.body.get)
+    val body = req.param("payload").get
 
     logger.info("Got post_recieve information from GitHub: " + body)
 
@@ -45,12 +45,13 @@ object GitHubPostReceiveApiHandler extends RestHelper with Logging {
         .objectId(c.id)
         .pushAuthor(c.author.email)
         .createdAt(Calendar.getInstance)
+        .save(true)
     }
 
     Some("success" -> true)
   } catch {
     case ex: Exception =>
-      logger.info("Failed to auth...", ex)
+      logger.info("Failed to process github post_recieve push...", ex)
       None
   }
 }

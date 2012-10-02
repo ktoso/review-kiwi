@@ -70,6 +70,7 @@ class Boot {
     LiftRules.ajaxPostTimeout = 1000*60 // 60 seconds
 
     LiftRules.dispatch.append(GitHubAuthCallbackApiHandler)
+    LiftRules.dispatch.append(GitHubPostReceiveApiHandler)
 
   }
 }
