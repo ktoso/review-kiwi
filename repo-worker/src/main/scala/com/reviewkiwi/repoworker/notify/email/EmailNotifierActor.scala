@@ -4,10 +4,9 @@ import akka.actor._
 import com.reviewkiwi.repoworker.fetcher.NewCommit
 import org.eclipse.jgit.api.Git
 import com.reviewkiwi.repoworker.git.GitDiffer
-import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
 import com.reviewkiwi.repoworker.notify.template.html.LineByLineDiffEmailHtml
-import net.liftweb.util.Mailer.To
+import com.reviewkiwi.model.ChangeToFetch
 
 class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtml, reportSender: ActorRef) extends Actor {
 
@@ -20,13 +19,21 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
 
       val body = htmlReporter.build(git, revCommit, diffs)
 
-      // foreach zainteresowany osobnik
       reportSender ! SendEmail(
-        "ktoso@project13.pl", // todo hardcoded
+        "konrad.malawski@softwaremill.pl", // todo hardcoded
         topic = revCommit.getAuthorIdent.getName + " pushed [" + revCommit.getFullMessage.split("\n").head + "]",
         body = body,
         replyTo = Some(revCommit.getAuthorIdent.getEmailAddress)
       )
 
+      // mark as resolved, delete the request
+      deleteChangeToFetch(revCommit)
+
+  }
+
+  // todo should also match on the repository name...
+  def deleteChangeToFetch(commit: RevCommit) = {
+    import com.foursquare.rogue.Rogue._
+    ChangeToFetch.where(_.objectId eqs commit.getName).findAndDeleteOne()
   }
 }

@@ -13,7 +13,7 @@ class ChangeToFetch private() extends MongoRecord[ChangeToFetch] with ObjectIdPk
 
   object objectId   extends StringField(this, 40) with UnderscoreName
 
-  object repo       extends ObjectIdRefField(this, KiwiRepository) with UnderscoreName
+  object repo       extends ObjectIdRefField[ChangeToFetch, KiwiRepository](this, KiwiRepository) with UnderscoreName
 
   object pushAuthor extends OptionalStringField(this, 255) with UnderscoreName
 
