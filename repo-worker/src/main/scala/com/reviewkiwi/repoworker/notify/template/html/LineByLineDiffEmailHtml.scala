@@ -1,40 +1,61 @@
 package com.reviewkiwi.repoworker.notify.template.html
 
 import org.eclipse.jgit.diff.DiffEntry
-import io._
 import org.eclipse.jgit.api.Git
 import com.reviewkiwi.common.git.{GitDiffs, GitObjects, GitWalks}
 import org.eclipse.jgit.revwalk.RevCommit
 import com.reviewkiwi.common.gravatar.Gravatar
 import com.reviewkiwi.repoworker.notify.template.css.CssImages
-import org.apache.commons.io.FilenameUtils
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 import java.util.Date
+import xml._
 
 class LineByLineDiffEmailHtml extends HtmlReport
-  with Gravatar
-  with GitWalks with GitObjects with GitDiffs {
+with Gravatar
+with GitWalks with GitObjects with GitDiffs {
 
-  val EmailTemplate = Source.fromInputStream(getClass.getResourceAsStream("/template/email/email.html")).getLines().mkString("\n")
-  val EmailFileTemplate = Source.fromInputStream(getClass.getResourceAsStream("/template/email/file.html")).getLines().mkString("\n")
+  val EmailTemplate = io.Source.fromInputStream(getClass.getResourceAsStream("/template/email/email.html")).getLines().mkString("\n")
+  val EmailFileTemplate = io.Source.fromInputStream(getClass.getResourceAsStream("/template/email/file.html")).getLines().mkString("\n")
 
   def build(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]) = {
     val fileDiffs = diffs map { diff => diff2html(git, commit, diff) }
 
     val commitMessageLines = commit.getFullMessage.split("\n")
     EmailTemplate
-      .replace("{{authorGravatarUrl}}", getSmallGravatarUrl(commit.getAuthorIdent.getEmailAddress))
-      .replace("{{authorName}}", commit.getAuthorIdent.getName)
-      .replace("{{authorEmail}}", commit.getAuthorIdent.getEmailAddress)
-      .replace("{{commitDateTime}}", formatDate(commit.getAuthorIdent.getWhen))
-      .replace("{{messageFirstLine}}", commitMessageLines.head)
-      .replace("{{messageFull}}", commitMessageLines.drop(1).mkString("<br/>"))
-      .replace("{{commitIdAbbrev}}", commit.abbreviate(8).name()) // todo use object reader!
-      .replace("{{githubRepoName}}", "ktoso/example-repo") // todo the url of the github project...
-      .replace("{{githubRepoUrl}}", "http://www.github.com/ktoso") // todo the url of the github project...
-      .replace("{{githubCommitUrl}}", "http://www.github.com/ktoso/repo/commit/" + commit.getName) // todo url ot the commit on github
-      .replace("{{content}}", fileDiffs.mkString("\n"))
+      .replaceAll('modifiedFilesListing, generateModifiedFilesListing(commit, diffs))
+      .replaceAll('authorGravatarUrl, getSmallGravatarUrl(commit.getAuthorIdent.getEmailAddress))
+      .replaceAll('authorName, commit.getAuthorIdent.getName)
+      .replaceAll('authorEmail, commit.getAuthorIdent.getEmailAddress)
+      .replaceAll('commitDateTime, formatDate(commit.getAuthorIdent.getWhen))
+      .replaceAll('messageFirstLine, commitMessageLines.head)
+      .replaceAll('messageFull, commitMessageLines.drop(1).mkString("<br/>"))
+      .replaceAll('commitIdAbbrev, commit.abbreviate(8).name()) // todo use object reader!
+      .replaceAll('githubRepoName, "ktoso/example-repo") // todo the url of the github project...
+      .replaceAll('githubRepoUrl, "http://www.github.com/ktoso") // todo the url of the github project...
+      .replaceAll('githubCommitUrl, "http://www.github.com/ktoso/repo/commit/" + commit.getName) // todo url ot the commit on github
+      .replaceAll('content, fileDiffs.mkString("\n"))
+  }
+
+  def generateModifiedFilesListing(commit: RevCommit, diffs: Iterable[DiffEntry]): String = {
+    val nodes = for (diff <- diffs) yield generateModifiedFileNode(commit, diff)
+
+    <ul>{nodes}</ul>.toString()
+  }
+
+  def generateModifiedFileNode(commit: RevCommit, diff: DiffEntry): NodeSeq = {
+    diff.getChangeType match {
+      case DiffEntry.ChangeType.ADD =>
+        <li>Added {diff.getNewPath}</li>
+      case DiffEntry.ChangeType.COPY =>
+        <li>Copied {diff.getOldPath} to {diff.getNewPath}</li>
+      case DiffEntry.ChangeType.DELETE =>
+        <li>Deleted {diff.getOldPath}</li>
+      case DiffEntry.ChangeType.MODIFY =>
+        <li>Modified {diff.getNewPath}</li>
+      case DiffEntry.ChangeType.RENAME =>
+        <li>Renamed {diff.getOldPath} => {diff.getNewPath}</li>
+    }
   }
 
   def diff2html(git: Git, commit: RevCommit, diff: DiffEntry): String = {
@@ -55,4 +76,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
   def formatDate(time: Date): String = {
     CommitDateFormat.print(new DateTime(time))
   }
+
+  implicit def templateMagic(s: Symbol): String = """\{\{""" + s.name + """\}\}"""
+
 }
