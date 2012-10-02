@@ -8,7 +8,7 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.http.InMemoryResponse
 import com.weiglewilczek.slf4s.Logging
 import org.eclipse.egit.github.core.client.{GitHubRequest, GitHubResponse, GitHubClient}
-import com.reviewkiwi.model.{Repository, KiwiUser}
+import com.reviewkiwi.model.{KiwiRepository, KiwiRepository$, KiwiUser}
 import scalaz.Scalaz._
 import org.eclipse.egit.github.core.service.RepositoryService
 import collection.JavaConversions._
@@ -38,16 +38,7 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
   def authUser(req: Req): Option[JValue] = try {
     val code = req.param("code").open_!
 
-    println("code = " + code)
-
-    import dispatch._
-    val oauthGetAccessToken = url("https://github.com/login/oauth/access_token").POST
-      .addQueryParameter("client_id", OAuth.clientId)
-      .addQueryParameter("client_secret", OAuth.clientSecret)
-      .addQueryParameter("code", code)
-      .addQueryParameter("state", "12345")
-
-    val response = Http(oauthGetAccessToken OK as.String)()
+    val response = getGithubAuthTokenResponse(code)
 
     response match {
       case AccessTokenResponse(token, tokenType) =>
@@ -55,17 +46,7 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
         github.setOAuth2Token(token)
         val ghUser = github.getUser
 
-        val repositoryService = new RepositoryService(github)
-        val repos = repositoryService.getRepositories map { repo =>
-          // todo findOrUpdate
-          val kiwiRepo = Repository.createRecord
-            .name(repo.getName)
-            .fetchUrl(repo.getCloneUrl)
-            .githubRepoId(repo.getId)
-            .save(true)
-
-          kiwiRepo.githubRepoId.get
-        }
+        val repos = importRepositories(github)
 
         KiwiUser.createRecord
           .name(ghUser)
@@ -85,5 +66,33 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
       None
   }
 
+
+  def getGithubAuthTokenResponse(code: String): String = {
+    import dispatch._
+    val oauthGetAccessToken = url("https://github.com/login/oauth/access_token").POST
+      .addQueryParameter("client_id", OAuth.clientId)
+      .addQueryParameter("client_secret", OAuth.clientSecret)
+      .addQueryParameter("code", code)
+      .addQueryParameter("state", "12345")
+
+    val response = Http(oauthGetAccessToken OK as.String)()
+    response
+  }
+
+  def importRepositories(github: GitHubClient) = {
+    val repositoryService = new RepositoryService(github)
+    repositoryService.getRepositories map {
+      repo =>
+
+      // todo findOrUpdate
+        val kiwiRepo = KiwiRepository.createRecord
+          .name(repo.getName)
+          .fetchUrl(repo.getCloneUrl)
+          .githubRepoId(repo.getId)
+          .save(true)
+
+        kiwiRepo.githubRepoId.get
+    }
+  }
 }
 

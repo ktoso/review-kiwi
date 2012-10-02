@@ -5,7 +5,7 @@ import org.eclipse.jgit.api.Git
 import java.io.File
 import com.google.common.hash.Hashing
 import com.weiglewilczek.slf4s.Logging
-import com.google.common.io.Files
+import collection.JavaConversions._
 
 class GitCloner extends Logging {
 
@@ -18,7 +18,7 @@ class GitCloner extends Logging {
 
     val target = new File(ReposDir, folder)
     logger.info("Created target dir for [%s] in [%s] ".format(uri, target))
-    cleanDir(target)
+    //    cleanDir(target)
     target
   }
 
@@ -28,14 +28,46 @@ class GitCloner extends Logging {
   }
 
   // todo be smarter, if already exists, check if it's the same remote, then fetch, else just clone into ther dir
-  def clone(uri: URI) = {
+  def fetchOrClone(uri: URI) = {
     val targetDir = generateTargetDir(uri)
+    val clonedAlready = targetDir.list.contains(".git")
 
-    Git.cloneRepository
-      .setURI(uri.toString)
-      .setDirectory(targetDir)
+    if (clonedAlready) {
+      fetchChanges(uri, to = targetDir)
+    } else {
+      cloneRepo(uri, to = targetDir)
+    }
+
+    targetDir
+  }
+
+  /**
+   * @return number of fetched changed
+   */
+  def fetchChanges(uri: URI, to: File) = {
+    val git = Git.open(to)
+    val fetchResult = git.fetch
+//      .setRemote() // yeah we should...
       .setProgressMonitor(CliProgressMonitor)
       .call()
-    targetDir
+
+    Option(fetchResult.getTrackingRefUpdate("refs/remotes/origin/master")) match {
+      case Some(status) =>
+      case None => 0 // no updates
+    }
+  }
+
+  /**
+   * @return number of fetched changed
+   */
+  def cloneRepo(uri: URI, to: File): Int = {
+    Git.cloneRepository
+      .setURI(uri.toString)
+      .setDirectory(to)
+      .setProgressMonitor(CliProgressMonitor)
+      .call()
+
+    // count changes
+    Git.open(to).log.all.call().size
   }
 }

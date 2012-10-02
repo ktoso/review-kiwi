@@ -29,7 +29,10 @@ object Config extends Logging {
   def readFromProperties(properties: Properties): Config = {
     new Config {
       val mongoServers = properties.getProperty("mongo.servers")
-      val mongoDatabase = properties.getProperty("mongo.database")
+      val mongoDatabase = properties.getProperty("mongo.db")
+
+      println("mongoServers = " + mongoServers)
+      println("mongoDatabase = " + mongoDatabase)
     }
   }
 

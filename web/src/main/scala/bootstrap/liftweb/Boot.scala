@@ -18,15 +18,15 @@ import com.reviewkiwi.model.mongo.{Config, MongoConfig, MongoInit}
  */
 class Boot {
 
-  def kiwiInit {
+  def kiwiInit() {
     val config = Config.readFromProperties()
 
     MongoInit.init(config)
   }
 
-  def boot {
+  def boot() {
 
-    kiwiInit
+    kiwiInit()
 
     // where to search snippet
     LiftRules.addToPackages("code")

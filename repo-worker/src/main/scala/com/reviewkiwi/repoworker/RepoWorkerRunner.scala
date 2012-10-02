@@ -2,14 +2,16 @@ package com.reviewkiwi.repoworker
 
 import akka.actor._
 import Actor._
-import data.GitRepoLocation
-import fetch.ChangesFetcherActor
+import data.FetchThisChange
+import fetch.{ChangeToFetchQueueFetcherActor, ChangesFetcherActor}
 import git.{GitDiffer, FreshCommitsExtractor, GitCloner}
 import notify.cli.CliNotifierActor
 import java.net.URI
 import notify.email.{EmailSenderActor, EmailNotifierActor}
 import notify.template.html.LineByLineDiffEmailHtml
 import com.reviewkiwi.common.email.EmailSender
+import com.reviewkiwi.repoworker.fetcher.CheckQueue
+import akka.util.duration._
 
 object RepoWorkerRunner extends App {
 
@@ -38,12 +40,15 @@ object RepoWorkerRunner extends App {
   )
 
   val fetcherActor = system.actorOf(
-//    Props(new ChangesFetcherActor(cloner, extractor, cliNotifierActor)),
     Props(new ChangesFetcherActor(cloner, extractor, emailNotifierActor)),
     name = "fetcher"
   )
 
+  val queueFetcherActor = system.actorOf(
+    Props(new ChangeToFetchQueueFetcherActor(fetcherActor)),
+    name = "change-to-fetch-queue-fetcher"
+  )
 
-  // mocking interaction
-  fetcherActor ! GitRepoLocation(new URI("https://github.com/ktoso/scala-rainbow.git"))
+  system.scheduler.schedule(20.seconds, 20.seconds, queueFetcherActor, CheckQueue)
+
 }
