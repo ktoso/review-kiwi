@@ -12,8 +12,12 @@ import notify.template.html.LineByLineDiffEmailHtml
 import com.reviewkiwi.common.email.EmailSender
 import com.reviewkiwi.repoworker.fetcher.CheckQueue
 import akka.util.duration._
+import com.reviewkiwi.model.mongo.{Config, MongoInit}
 
 object RepoWorkerRunner extends App {
+
+  val config = Config.readFromProperties()
+  MongoInit.init(config)
 
   val system = ActorSystem("RepoWorkerSystem")
 
@@ -23,7 +27,6 @@ object RepoWorkerRunner extends App {
   val emailSender = new EmailSender
   val extractor = new FreshCommitsExtractor
   val lineByLineDiffHtmlReporter = new LineByLineDiffEmailHtml
-
 
   val cliNotifierActor = system.actorOf(
     Props(new CliNotifierActor(differ)),
