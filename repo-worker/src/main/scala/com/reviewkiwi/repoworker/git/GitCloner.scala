@@ -30,7 +30,7 @@ class GitCloner extends Logging {
   // todo be smarter, if already exists, check if it's the same remote, then fetch, else just clone into ther dir
   def fetchOrClone(uri: URI) = {
     val targetDir = generateTargetDir(uri)
-    val clonedAlready = targetDir.list.contains(".git")
+    val clonedAlready = Option(targetDir.list).map(_.contains(".git")).getOrElse(false)
 
     if (clonedAlready) {
       fetchChanges(uri, to = targetDir)
@@ -44,10 +44,15 @@ class GitCloner extends Logging {
   /**
    * @return number of fetched changed
    */
-  def fetchChanges(uri: URI, to: File) = {
+  def fetchChanges(uri: URI, to: File, token: Option[String]) = {
     val git = Git.open(to)
+    val fetchUri = token match {
+      case None => uri.toString
+      case Some(t) => uri.toString.replace("github.com", token + "@github.com")
+    }
+
     val fetchResult = git.fetch
-//      .setRemote() // yeah we should...
+      .setRemote(fetchUri) // https://github.com/barthez/mysql.integra.dbfiller.git ->
       .setProgressMonitor(CliProgressMonitor)
       .call()
 
