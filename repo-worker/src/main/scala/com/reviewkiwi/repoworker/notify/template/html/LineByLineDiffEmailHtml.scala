@@ -11,6 +11,7 @@ import org.joda.time.DateTime
 import java.util.Date
 import xml._
 import com.reviewkiwi.common.util.UniquifyVerb
+import com.reviewkiwi.common.css.CssStyles
 
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar with UniquifyVerb
@@ -46,17 +47,25 @@ class LineByLineDiffEmailHtml extends HtmlReport
   }
 
   def generateModifiedFileNode(commit: RevCommit, diff: DiffEntry): NodeSeq = {
+    val Added = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.InsertColor), Null)
+    val Copied = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
+    val Deleted = <b>[-]</b> % Attribute("style", Text("color:" + CssStyles.DeletedColor), Null)
+
     diff.getChangeType match {
       case DiffEntry.ChangeType.ADD =>
-        <li>Added {diff.getNewPath}</li>
+        <li>{Added} Added <b>{diff.getNewPath}</b></li>
+
       case DiffEntry.ChangeType.COPY =>
-        <li>Copied {diff.getOldPath} to {diff.getNewPath}</li>
+        <li>{Copied} Copied <b>{diff.getOldPath}</b> to <b>{diff.getNewPath}</b></li>
+
       case DiffEntry.ChangeType.DELETE =>
-        <li>Deleted {diff.getOldPath}</li>
+        <li>{Deleted} Deleted <b>{diff.getOldPath}</b></li>
+
       case DiffEntry.ChangeType.MODIFY =>
-        <li>Modified {diff.getNewPath}</li>
+        <li><b>[m]</b> Modified <b>{diff.getNewPath}</b></li>
+
       case DiffEntry.ChangeType.RENAME =>
-        <li>Renamed {diff.getOldPath} => {diff.getNewPath}</li>
+        <li>{Copied} Renamed {diff.getOldPath} => <b>{diff.getNewPath}</b></li>
     }
   }
 
