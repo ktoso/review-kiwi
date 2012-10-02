@@ -10,10 +10,11 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 import java.util.Date
 import xml._
+import com.reviewkiwi.common.util.UniquifyVerb
 
 class LineByLineDiffEmailHtml extends HtmlReport
-with Gravatar
-with GitWalks with GitObjects with GitDiffs {
+  with Gravatar with UniquifyVerb
+  with GitWalks with GitObjects with GitDiffs {
 
   val EmailTemplate = io.Source.fromInputStream(getClass.getResourceAsStream("/template/email/email.html")).getLines().mkString("\n")
   val EmailFileTemplate = io.Source.fromInputStream(getClass.getResourceAsStream("/template/email/file.html")).getLines().mkString("\n")
@@ -38,7 +39,8 @@ with GitWalks with GitObjects with GitDiffs {
   }
 
   def generateModifiedFilesListing(commit: RevCommit, diffs: Iterable[DiffEntry]): String = {
-    val nodes = for (diff <- diffs) yield generateModifiedFileNode(commit, diff)
+    val uniqueByFile = diffs.toList.uniquifyOn(_.getNewPath)
+    val nodes = for (diff <- uniqueByFile) yield generateModifiedFileNode(commit, diff)
 
     <ul>{nodes}</ul>.toString()
   }
