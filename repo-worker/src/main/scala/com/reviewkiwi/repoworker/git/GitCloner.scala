@@ -6,6 +6,7 @@ import java.io.File
 import com.google.common.hash.Hashing
 import com.weiglewilczek.slf4s.Logging
 import collection.JavaConversions._
+import com.reviewkiwi.model.KiwiUser
 
 class GitCloner extends Logging {
 
@@ -28,14 +29,14 @@ class GitCloner extends Logging {
   }
 
   // todo be smarter, if already exists, check if it's the same remote, then fetch, else just clone into ther dir
-  def fetchOrClone(uri: URI) = {
+  def fetchOrClone(uri: URI, token: Option[String]) = {
     val targetDir = generateTargetDir(uri)
     val clonedAlready = Option(targetDir.list).map(_.contains(".git")).getOrElse(false)
 
     if (clonedAlready) {
-      fetchChanges(uri, to = targetDir)
+      fetchChanges(uri, to = targetDir, token = token)
     } else {
-      cloneRepo(uri, to = targetDir)
+      cloneRepo(uri, to = targetDir, token = token)
     }
 
     targetDir
@@ -65,9 +66,14 @@ class GitCloner extends Logging {
   /**
    * @return number of fetched changed
    */
-  def cloneRepo(uri: URI, to: File): Int = {
+  def cloneRepo(uri: URI, to: File, token: Option[String]): Int = {
+    val fetchUri = token match {
+      case None => uri.toString
+      case Some(t) => uri.toString.replace("github.com", token + "@github.com")
+    }
+
     Git.cloneRepository
-      .setURI(uri.toString)
+      .setURI(fetchUri)
       .setDirectory(to)
       .setProgressMonitor(CliProgressMonitor)
       .call()
