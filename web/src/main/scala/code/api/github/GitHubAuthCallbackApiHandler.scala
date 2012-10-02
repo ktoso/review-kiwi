@@ -55,7 +55,7 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
           .repos(repos.flatten.toList)
           .save(true)
 
-        Some(("user" -> ghUser))
+        Some(("auth" -> "successful") ~ ("message" -> "Welcome to Review Kiwi! Note that it's not even Alpha though..."))
 
       case _ => None
     }
