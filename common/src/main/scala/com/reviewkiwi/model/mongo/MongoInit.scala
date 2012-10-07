@@ -5,7 +5,7 @@ import com.mongodb.{Mongo, ServerAddress}
 import net.liftweb.mongodb.{MongoIdentifier, MongoDB}
 import com.weiglewilczek.slf4s.Logging
 import com.reviewkiwi.model.mongo.MongoConfig.KiwiMongoIdentifier
-import com.reviewkiwi.model.{KiwiUser, ChangeToFetch, ChangeFetched}
+import com.reviewkiwi.model.{KiwiRepository, KiwiUser, ChangeToFetch, ChangeFetched}
 
 /**
  * Used to establish an MongoDB connection and also ensure all indexes are set.
@@ -42,8 +42,10 @@ object MongoInit extends Logging {
   }
 
   def ensureIndexes() {
+    logger.info("Ensuring indexes on collections...")
+
     KiwiUser.ensureIndexes()
-    KiwiUser.ensureIndexes()
+    KiwiRepository.ensureIndexes()
     ChangeFetched.ensureIndexes()
     ChangeToFetch.ensureIndexes()
   }

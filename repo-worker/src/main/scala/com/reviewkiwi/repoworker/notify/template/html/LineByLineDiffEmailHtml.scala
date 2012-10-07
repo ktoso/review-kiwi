@@ -12,6 +12,7 @@ import java.util.Date
 import xml._
 import com.reviewkiwi.common.util.UniquifyVerb
 import com.reviewkiwi.common.css.CssStyles
+import util.matching.Regex
 
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar with UniquifyVerb
@@ -23,6 +24,9 @@ class LineByLineDiffEmailHtml extends HtmlReport
   def build(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]) = {
     val fileDiffs = diffs map { diff => diff2html(git, commit, diff) }
 
+    val repoName = getRepoName(git)
+    val commitUrl = getCommitUrl(repoName, commit.getName)
+
     val commitMessageLines = commit.getFullMessage.split("\n")
     EmailTemplate
       .replaceAll('modifiedFilesListing, generateModifiedFilesListing(commit, diffs))
@@ -33,9 +37,9 @@ class LineByLineDiffEmailHtml extends HtmlReport
       .replaceAll('messageFirstLine, commitMessageLines.head)
       .replaceAll('messageFull, commitMessageLines.drop(1).mkString("<br/>"))
       .replaceAll('commitIdAbbrev, commit.abbreviate(8).name()) // todo use object reader!
-      .replaceAll('githubRepoName, "ktoso/example-repo") // todo the url of the github project...
-      .replaceAll('githubRepoUrl, "http://www.github.com/ktoso") // todo the url of the github project...
-      .replaceAll('githubCommitUrl, "http://www.github.com/ktoso/repo/commit/" + commit.getName) // todo url ot the commit on github
+      .replaceAll('githubRepoName, repoName)
+      .replaceAll('githubRepoUrl, getGitHubRepoUrl(repoName))
+      .replaceAll('githubCommitUrl, commitUrl)
       .replaceAll('content, fileDiffs.mkString("\n"))
   }
 
@@ -45,6 +49,23 @@ class LineByLineDiffEmailHtml extends HtmlReport
 
     <ul>{nodes}</ul>.toString()
   }
+
+  def getRepoName(git: Git): String = {
+    val config = git.getRepository.getConfig
+    config.load()
+    val name = config.getString("remote", "origin", "url") match {
+      case LineByLineDiffEmailHtml.GitHubUrl(repoName) => repoName
+      case otherUrl => throw new Exception("Only github repos are supported currently... Can't use [%s] ".format(otherUrl))
+    }
+
+    name
+  }
+
+  def getCommitUrl(repoName: String, commitId: String): String =
+    """https://github.com/%s/commit/%s""".format(repoName, commitId)
+
+  def getGitHubRepoUrl(repoName: String): String =
+    "https://github.com/" + repoName
 
   def generateModifiedFileNode(commit: RevCommit, diff: DiffEntry): NodeSeq = {
     val Added = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.InsertColor), Null)
@@ -89,5 +110,10 @@ class LineByLineDiffEmailHtml extends HtmlReport
   }
 
   implicit def templateMagic(s: Symbol): String = """\{\{""" + s.name + """\}\}"""
+
+}
+
+object LineByLineDiffEmailHtml {
+  val GitHubUrl: Regex = """https?://github.com/(.*).git""".r
 
 }

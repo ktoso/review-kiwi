@@ -43,7 +43,7 @@ object RepoWorkerRunner extends App {
   )
 
   val fetcherActor = system.actorOf(
-    Props(new ChangesFetcherActor(cloner, extractor, emailNotifierActor)),
+    Props(new ChangesFetcherActor(cloner, extractor, emailNotifierActor, system.scheduler)),
     name = "fetcher"
   )
 

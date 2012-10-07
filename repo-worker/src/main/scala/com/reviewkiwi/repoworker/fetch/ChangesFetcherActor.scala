@@ -11,17 +11,20 @@ import org.eclipse.jgit.revwalk.RevCommit
 import java.io.File
 import java.net.URI
 import com.weiglewilczek.slf4s.Logging
-import akka.dispatch.{Future, Futures}
+import akka.dispatch.{ExecutionContext, Future}
 import akka.util.duration._
 import akka.util.Timeout
 
 class ChangesFetcherActor(
     cloner: GitCloner,
     newChangesExtractor: FreshCommitsExtractor,
-    onNewChangesActor: ActorRef
+    onNewChangesActor: ActorRef,
+    scheduler: Scheduler
   ) extends Actor with Logging {
 
   implicit val Timeout: Timeout = 1.minute
+
+  implicit lazy val execContext = ExecutionContext.defaultExecutionContext(context.system)
 
   def receive = {
     case FetchThisChange(uri, objectId) =>
@@ -43,13 +46,14 @@ class ChangesFetcherActor(
     case FetchNewChangesFromReposEach(delay) =>
       logger.info("Got fetch changes from each repo request, will execute and check again in [%s]".format(delay))
 
-      import com.foursquare.rogue.Rogue._
-      KiwiRepository.findAllToFetch().map { repo =>
+      val futures = KiwiRepository.findAllToFetch().map { repo =>
         logger.info("Sending FetchNewChangesFrom [%s] ".format(repo.githubRepoId))
-        val future = self ? FetchNewChangesFrom(repo)
+        self ? FetchNewChangesFrom(repo)
       }
 
-      context.system.scheduler.scheduleOnce(delay, self, FetchNewChangesFromReposEach(delay))
+      Future.sequence(futures) onComplete { either =>
+        scheduler.scheduleOnce(delay, self, FetchNewChangesFromReposEach(delay))
+      }
   }
 
   def getToken(uri: URI): Option[String] = {
@@ -60,6 +64,10 @@ class ChangesFetcherActor(
   }
 
   def notifyAbout(changes: Iterable[RevCommit], repoDir: File) {
-    changes foreach { commit => onNewChangesActor ! NewCommit(commit, in = repoDir) }
+    changes foreach { commit =>
+      logger.info("Will have to notify about [%s] in [%s] ".format(commit.getName, repoDir))
+
+      onNewChangesActor ! NewCommit(commit, in = repoDir)
+    }
   }
 }

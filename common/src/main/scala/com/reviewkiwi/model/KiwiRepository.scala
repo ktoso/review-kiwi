@@ -48,7 +48,11 @@ object KiwiRepository extends KiwiRepository with MongoMetaRecord[KiwiRepository
 
   import com.foursquare.rogue.Rogue._
 
-  def findAllToFetch(): List[KiwiRepository] =
-    meta where(_.fetchUsingPooling eqs true) fetch()
+  def findAllToFetch(): List[KiwiRepository] = {
+    val all = meta where (_.fetchUsingPooling eqs true) fetch()
+
+    import com.reviewkiwi.common.util.UniquifyVerb._
+    all.uniquifyOn(_.fetchUrl.is) // todo temporary hack, they should be unique anyway
+  }
 
 }
