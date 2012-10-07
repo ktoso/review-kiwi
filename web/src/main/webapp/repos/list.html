@@ -1,0 +1,58 @@
+<div ng-controller="ReposCtrl">
+
+    <h2>Repos for {{user}}:</h2>
+
+    <div>
+        Filter: <input type="text" ng-model="search" class="search-query" placeholder="Filter..."/>
+    </div>
+    <div>
+        <table>
+            <thead>
+            <tr>
+                <th>Repository</th>
+                <th>Url</th>
+                <th>State</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="repo in repos | filter:search | orderBy:'name'">
+                <td>
+                    <b>{{repo.name}}</b>
+                </td>
+                <td>{{repo.fetch_url}}</td>
+                <td>
+                    <button ng-hide="!repo.fetch_using_pooling"
+                            ng-click="disablePooling(repo)"
+                            style="width: 120px; color:green;">
+                        Pooling enabled<br/>
+                        disable?
+                    </button>
+                    <button ng-hide="repo.fetch_using_pooling"
+                            ng-click="enablePooling(repo)"
+                            style="width: 120px; color:red">
+                        Pooling disabled<br/>
+                        enable?
+                    </button>
+                </td>
+            </tr>
+
+            <!-- create a new one -->
+            <tr style="border: none">
+                <th colspan="3">Create new repo:</th>
+            </tr>
+            <tr style="border: none">
+                <th>Repository</th>
+                <th>Url</th>
+                <th>State</th>
+            </tr>
+            <tr style="border: none">
+                <th><input type="text" ng-model="new_name" style="width: 95%"/></th>
+                <th><input type="text" ng-model="new_url" style="width: 95%"/></th>
+                <th><button ng-click="createNewRepository(new_name, new_url)">Create new repo</button></th>
+            </tr>
+            </tbody>
+
+            {{repoData.repos}}
+        </table>
+    </div>
+</div>

@@ -8,15 +8,13 @@ class GitClonerTest extends FlatSpec with ShouldMatchers {
 
   val cloner = new GitCloner
 
-  "authorizeGithubUrlWithOAuth" should "should add auth part to url" in {
+  it should "clone by fetching" in {
     // given
-    val token = Some("abcabcabcabc")
+    val token = Some("e0915567a4a4b02d2a1b731997050bc3642a95d5")
     val uri = new URI("https://github.com/ktoso/review-kiwi.git")
 
     // when
-    val authorized = cloner.authorizeGithubUrlWithOAuth(token, uri)
-
-    // then
-    authorized should equal ("https://abcabcabcabc@github.com/ktoso/review-kiwi.git")
+    cloner.fetchOrClone(uri, token)
+    cloner.fetchOrClone(uri, token)
   }
 }

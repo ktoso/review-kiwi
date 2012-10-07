@@ -5,6 +5,7 @@ import com.mongodb.{Mongo, ServerAddress}
 import net.liftweb.mongodb.{MongoIdentifier, MongoDB}
 import com.weiglewilczek.slf4s.Logging
 import com.reviewkiwi.model.mongo.MongoConfig.KiwiMongoIdentifier
+import com.reviewkiwi.model.{KiwiUser, ChangeToFetch, ChangeFetched}
 
 /**
  * Used to establish an MongoDB connection and also ensure all indexes are set.
@@ -16,6 +17,8 @@ object MongoInit extends Logging {
    */
   def init(config: MongoConfig, verbose: Boolean = true) {
     defineDb(KiwiMongoIdentifier, config.mongoServers, config.mongoDatabase, verbose)
+    
+    ensureIndexes()
   }
 
   def defineDb(mongoIdentifier: MongoIdentifier, servers: String, dbName: String, printDatabases: Boolean = false) {
@@ -39,7 +42,10 @@ object MongoInit extends Logging {
   }
 
   def ensureIndexes() {
-//    RunnerEvent.ensureIndexes()
+    KiwiUser.ensureIndexes()
+    KiwiUser.ensureIndexes()
+    ChangeFetched.ensureIndexes()
+    ChangeToFetch.ensureIndexes()
   }
 
   def asServerAdresses(servers: String): scala.List[ServerAddress] = {

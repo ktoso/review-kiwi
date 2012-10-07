@@ -11,6 +11,7 @@ import java.io.File
 
 import code.api.github._
 import com.reviewkiwi.model.mongo.{Config, MongoConfig, MongoInit}
+import code.api.repos.WatchReposApiHandler
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -69,8 +70,12 @@ class Boot {
 
     LiftRules.ajaxPostTimeout = 1000*60 // 60 seconds
 
+    // github apis
     LiftRules.dispatch.append(GitHubAuthCallbackApiHandler)
     LiftRules.dispatch.append(GitHubPostReceiveApiHandler)
+
+    // internal apis
+    LiftRules.dispatch.append(WatchReposApiHandler)
 
   }
 }

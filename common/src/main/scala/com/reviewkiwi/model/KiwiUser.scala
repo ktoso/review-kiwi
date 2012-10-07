@@ -4,6 +4,7 @@ import mongo.MongoConfig.KiwiMongoIdentifier
 import net.liftweb.record.field._
 import net.liftweb.mongodb.record._
 import net.liftweb.mongodb.record.field._
+import net.liftweb.json.JsonDSL._
 import net.liftweb.record.UnderscoreName
 
 class KiwiUser private() extends MongoRecord[KiwiUser] with ObjectIdPk[KiwiUser] {
@@ -26,4 +27,16 @@ object KiwiUser extends KiwiUser with MongoMetaRecord[KiwiUser] {
     override def mongoIdentifier = KiwiMongoIdentifier
     override def collectionName = "users"
 
+  def ensureIndexes() {
+    ensureIndex(watchedRepos.name -> 1)
+    ensureIndex(oauthToken.name -> 1)
+    ensureIndex(email.name -> 1)
+  }
+
+  // finders
+
+  import com.foursquare.rogue.Rogue._
+
+  def findByApiKey(apiKey: String) =
+    KiwiUser.where(_.oauthToken eqs apiKey).get()
 }

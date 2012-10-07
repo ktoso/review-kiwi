@@ -2,7 +2,7 @@ package com.reviewkiwi.repoworker
 
 import akka.actor._
 import Actor._
-import data.FetchThisChange
+import data.{FetchNewChangesFromReposEach, FetchNewChangesFrom, FetchThisChange}
 import fetch.{ChangeToFetchQueueFetcherActor, ChangesFetcherActor}
 import git.{GitDiffer, FreshCommitsExtractor, GitCloner}
 import notify.cli.CliNotifierActor
@@ -53,5 +53,7 @@ object RepoWorkerRunner extends App {
   )
 
   system.scheduler.schedule(20.seconds, 20.seconds, queueFetcherActor, CheckQueue)
+
+  fetcherActor ! FetchNewChangesFromReposEach(5.minutes)
 
 }

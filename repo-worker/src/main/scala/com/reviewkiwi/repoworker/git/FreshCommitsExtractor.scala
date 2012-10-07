@@ -7,16 +7,28 @@ import org.eclipse.jgit.revwalk.RevCommit
 import com.weiglewilczek.slf4s.Logging
 import org.joda.time.DateTime
 import org.eclipse.jgit.lib.ObjectId
+import collection.JavaConversions._
+import com.reviewkiwi.model.ChangeFetched
 
 class FreshCommitsExtractor extends Logging {
 
+  val MaxFreshCommits = 20
+
+  def alreadyNotifiedAbout(commit: RevCommit) = {
+    import com.foursquare.rogue.Rogue._
+    ChangeFetched where(_.objectId eqs commit.getName) exists()
+  }
+
   // todo obviously fix ;-)
-  def lastThree(repoDir: File): Iterable[RevCommit] = {
+  def notYetNotifiedAbout(repoDir: File): Iterable[RevCommit] = {
     val git = Git.open(repoDir)
 
     val commits = git.log
-      .setMaxCount(3)
+      .setMaxCount(MaxFreshCommits)
       .call()
+
+    commits.filterNot(alreadyNotifiedAbout)
+
 
     logger.info("Got commits from [%s]".format(repoDir))
 

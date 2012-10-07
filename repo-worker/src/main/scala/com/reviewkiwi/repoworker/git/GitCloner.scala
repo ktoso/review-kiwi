@@ -18,8 +18,6 @@ class GitCloner extends Logging {
   def generateTargetDir(uri: URI): File = {
     val folder = Hashing.sha1().hashString(uri.toString).toString
 
-    // todo be smarter ;-)
-
     val target = new File(ReposDir, folder)
     logger.info("Created target dir for [%s] in [%s] ".format(uri, target))
     target
@@ -31,10 +29,11 @@ class GitCloner extends Logging {
     ("rm -rf " + dir.getAbsolutePath).! == 0
   }
 
-  // todo be smarter, if already exists, check if it's the same remote, then fetch, else just clone into ther dir
-  def fetchOrClone(uri: URI, token: Option[String]) = {
+  /**
+   * @return directory where the cloned repo is
+   */
+  def fetchOrClone(uri: URI, token: Option[String]): File = {
     val targetDir = generateTargetDir(uri)
-//    cleanDir(targetDir) // todo remove, for now always clone() is ok...
 
     val clonedAlready = Option(targetDir.list).map(_.contains(".git")).getOrElse(false)
 
@@ -50,7 +49,6 @@ class GitCloner extends Logging {
   /**
    * @return number of fetched changed
    */
-  // todo fails, command needs more data
   def fetchChanges(uri: URI, to: File, token: Option[String]): Int = {
     logger.info("Fetching changes from [%s] to [%s] ".format(uri, to))
 
@@ -66,7 +64,7 @@ class GitCloner extends Logging {
 
     val command = git.fetch
       .setRemote(origin)
-      .setProgressMonitor(CliProgressMonitor)
+      .setProgressMonitor(NoopProgressMonitor)
 
     command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token.get, "x-oauth-basic"))
 

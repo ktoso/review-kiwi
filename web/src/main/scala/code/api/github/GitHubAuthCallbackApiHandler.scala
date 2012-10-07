@@ -31,7 +31,8 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
       val ret = response getOrElse ErrorResponse
 
       val json = JsonResponse(ret).toResponse.asInstanceOf[InMemoryResponse]
-      InMemoryResponse(json.data, ("Content-Length", json.data.length.toString) ::("Content-Type", "application/json") :: Nil, Nil, 200)
+//      InMemoryResponse(json.data, ("Content-Length", json.data.length.toString) ::("Content-Type", "application/json") :: Nil, Nil, 200)
+      S.redirectTo("/repos/index")
     }
   }
 
