@@ -16,6 +16,10 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
     case NewCommit(revCommit, repoDir) =>
       val git = Git.open(repoDir)
 
+      if (alreadyNotified(git, revCommit)) {
+        //
+      }
+
       logger.info("[%s] by [%s]: %s".format(revCommit.getName, revCommit.getAuthorIdent.getName, revCommit.getShortMessage))
       val diffs = differ.diffWithParent(git, revCommit)
 
@@ -32,6 +36,11 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
       deleteChangeToFetch(revCommit)
       markAsNotified(git, revCommit)
 
+  }
+
+  def alreadyNotified(git: Git, commit: RevCommit): Boolean = {
+    val repoName = getRepoName(git)
+    ChangeFetched.alreadyNotifiedAbout(repoName, commit)
   }
 
   // todo should also match on the repository name...

@@ -19,15 +19,14 @@ class FreshCommitsExtractor extends Logging {
     val git = Git.open(repoDir)
 
     val commits = getLatestCommitsFromRepo(git)
+    val repoName = getRepoName(git)
 
     commits foreach { commit =>
-      val repoName = getRepoName(git)
-
       val maybeNewCommit = ChangeFetched.createIfNotPersistedYet(repoName, commit)
       maybeNewCommit map { c => logger.debug("Created ChangeFetched [%s] in [%s], objectId: [%s]".format(commit.getName, repoName, c.id)) }
     }
 
-    val withoutAlreadyNotifiedAbout = commits.filterNot(ChangeFetched.alreadyNotifiedAbout).toList
+    val withoutAlreadyNotifiedAbout = commits.filterNot(ChangeFetched.alreadyNotifiedAbout(repoName, _)).toList
 
     logger.info("Got [%s] commits from [%s] (before filtering [%s])".format(withoutAlreadyNotifiedAbout.size, repoDir, commits.size))
 

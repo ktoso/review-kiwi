@@ -38,8 +38,9 @@ object ChangeFetched extends ChangeFetched with MongoMetaRecord[ChangeFetched] {
 
   import com.foursquare.rogue.Rogue._
 
-  def alreadyNotifiedAbout(commit: RevCommit): Boolean = {
-    meta where(_.objectId eqs commit.getName) and(_.notifiedUsersAboutIt eqs true) exists()
+  // todo should use repo name
+  def alreadyNotifiedAbout(repoName: String, commit: RevCommit): Boolean = {
+    meta where(_.objectId eqs commit.getName) and(_.repoName eqs repoName) and(_.notifiedUsersAboutIt eqs true) exists()
   }
 
   // creation
