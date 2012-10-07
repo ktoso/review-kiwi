@@ -13,12 +13,11 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
   extends Actor with Logging {
 
   def receive = {
+    case NewCommit(revCommit, repoDir) if alreadyNotified(Git.open(repoDir), revCommit) =>
+      logger.info("Already notified about commit [%s] in [%s], skipping sending email.".format(revCommit.getName, repoDir))
+
     case NewCommit(revCommit, repoDir) =>
       val git = Git.open(repoDir)
-
-      if (alreadyNotified(git, revCommit)) {
-        //
-      }
 
       logger.info("[%s] by [%s]: %s".format(revCommit.getName, revCommit.getAuthorIdent.getName, revCommit.getShortMessage))
       val diffs = differ.diffWithParent(git, revCommit)
