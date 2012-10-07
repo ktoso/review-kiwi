@@ -13,6 +13,7 @@ import xml._
 import com.reviewkiwi.common.util.UniquifyVerb
 import com.reviewkiwi.common.css.CssStyles
 import util.matching.Regex
+import java.util.regex.Matcher
 
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar with UniquifyVerb
@@ -26,21 +27,25 @@ class LineByLineDiffEmailHtml extends HtmlReport
 
     val repoName = getRepoName(git)
     val commitUrl = getCommitUrl(repoName, commit.getName)
-
     val commitMessageLines = commit.getFullMessage.split("\n")
-    EmailTemplate
-      .replaceAll('modifiedFilesListing, generateModifiedFilesListing(commit, diffs))
-      .replaceAll('authorGravatarUrl, getSmallGravatarUrl(commit.getAuthorIdent.getEmailAddress))
-      .replaceAll('authorName, commit.getAuthorIdent.getName)
-      .replaceAll('authorEmail, commit.getAuthorIdent.getEmailAddress)
-      .replaceAll('commitDateTime, formatDate(commit.getAuthorIdent.getWhen))
-      .replaceAll('messageFirstLine, commitMessageLines.head)
-      .replaceAll('messageFull, commitMessageLines.drop(1).mkString("<br/>"))
-      .replaceAll('commitIdAbbrev, commit.abbreviate(8).name()) // todo use object reader!
-      .replaceAll('githubRepoName, repoName)
-      .replaceAll('githubRepoUrl, getGitHubRepoUrl(repoName))
-      .replaceAll('githubCommitUrl, commitUrl)
-      .replaceAll('content, fileDiffs.mkString("\n"))
+    val authorGravatarUrl = getSmallGravatarUrl(commit.getAuthorIdent.getEmailAddress)
+    val modifiedFilesListing = generateModifiedFilesListing(commit, diffs)
+    val prettyCommitDate = formatDate(commit.getAuthorIdent.getWhen)
+
+    import Matcher._
+    EmailTemplate.replaceAll('modifiedFilesListing, quoteReplacement(modifiedFilesListing))
+      .replaceAll('authorGravatarUrl,               quoteReplacement(authorGravatarUrl))
+      .replaceAll('authorName,                      quoteReplacement(commit.getAuthorIdent.getName))
+      .replaceAll('authorEmail,                     quoteReplacement(commit.getAuthorIdent.getEmailAddress))
+      .replaceAll('commitDateTime,                  quoteReplacement(prettyCommitDate))
+      .replaceAll('messageFirstLine,                quoteReplacement(commitMessageLines.head))
+      .replaceAll('messageFull,                     quoteReplacement(commitMessageLines.drop(1).mkString("<br/>")))
+      .replaceAll('commitIdAbbrev,                  quoteReplacement(commit.abbreviate(8).name())) // todo use object reader!
+      .replaceAll('githubRepoName,                  quoteReplacement(repoName))
+      .replaceAll('githubRepoUrl,                   quoteReplacement(getGitHubRepoUrl(repoName)))
+      .replaceAll('githubCommitUrl,                 quoteReplacement(commitUrl))
+      .replaceAll('diffContents,                    quoteReplacement(fileDiffs.mkString("\n")))
+
   }
 
   def generateModifiedFilesListing(commit: RevCommit, diffs: Iterable[DiffEntry]): String = {
@@ -68,9 +73,9 @@ class LineByLineDiffEmailHtml extends HtmlReport
     "https://github.com/" + repoName
 
   def generateModifiedFileNode(commit: RevCommit, diff: DiffEntry): NodeSeq = {
-    val Added = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.InsertColor), Null)
+    val Added = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.AddedIconColor), Null)
     val Copied = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
-    val Deleted = <b>[-]</b> % Attribute("style", Text("color:" + CssStyles.DeletedColor), Null)
+    val Deleted = <b>[-]</b> % Attribute("style", Text("color:" + CssStyles.DeletedIconColor), Null)
 
     diff.getChangeType match {
       case DiffEntry.ChangeType.ADD =>

@@ -14,6 +14,8 @@ import net.liftweb.json.JsonAST.{JObject, JValue}
 object WatchReposApiHandler extends RestHelper with Logging
 with UniquifyVerb {
 
+  val MyApiKey = "e0915567a4a4b02d2a1b731997050bc3642a95d5"
+
   val ErrorResponse = ("error" -> "failed to compute") ~ ("code" -> "500")
 
   serve {
@@ -47,7 +49,7 @@ with UniquifyVerb {
     import net.liftweb.json._
 
     val request = parse(new String(req.body.open_!)).extract[CreateNewRepoRequest]
-    val user = KiwiUser.findByApiKey(req.param("apiKey").get).get
+    val user = KiwiUser.findByApiKey(req.param("apiKey").getOrElse(MyApiKey)).get
 
     val newRepo = KiwiRepository.createRecord
       .githubRepoId(-util.Random.nextInt(900000))
@@ -68,7 +70,6 @@ with UniquifyVerb {
     import net.liftweb.json._
 
     val parsed = parse(new String(req.body.open_!)).extract[SwitchPoolingRequest]
-    val apiKey = req.param("apiKey").get
 
     val updatedRepo = KiwiRepository
       .where(_.githubRepoId eqs parsed.github_repo_id)
@@ -85,7 +86,7 @@ with UniquifyVerb {
   def getAllReposForUser(req: Req): Option[JValue] = try {
     import net.liftweb.json._
 
-    val user = KiwiUser.findByApiKey(req.param("apiKey").get).get
+    val user = KiwiUser.findByApiKey(req.param("apiKey").getOrElse(MyApiKey)).get
 
     val repos = KiwiRepository.where(_.githubRepoId in user.repos.is).fetch()
     val uniques = repos.uniquifyOn(_.fetchUrl.is)

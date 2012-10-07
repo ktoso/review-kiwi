@@ -2,7 +2,7 @@ angular.module('kiwi.resource', ['ngResource']).
     factory('Repo',function ($resource) {
         var Repo = $resource(
             '/api/repos',
-            { apiKey:'e0915567a4a4b02d2a1b731997050bc3642a95d5' },
+            { apiKey:'' },
             {
                 query:{method:'GET', isArray:true},
                 create:{method:'POST'}
@@ -14,7 +14,7 @@ angular.module('kiwi.resource', ['ngResource']).
     factory('RepoWatch', function ($resource) {
         var RepoWatch = $resource(
             '/api/repos/pooling',
-            { apiKey:'e0915567a4a4b02d2a1b731997050bc3642a95d5' },
+            { apiKey:'' },
             {
                 switchPooling:{method:'POST'}
             }
