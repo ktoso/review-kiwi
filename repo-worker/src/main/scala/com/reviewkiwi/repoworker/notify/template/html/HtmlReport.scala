@@ -8,4 +8,6 @@ trait HtmlReport {
 
   def build(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]): String
 
+  def buildData(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]): Map[String, Any] = Map()
+
 }

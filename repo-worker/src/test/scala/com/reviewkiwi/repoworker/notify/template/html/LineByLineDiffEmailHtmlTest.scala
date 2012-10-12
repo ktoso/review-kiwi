@@ -6,6 +6,8 @@ import org.eclipse.jgit.api.Git
 import java.io.File
 import org.eclipse.jgit.revwalk.DepthWalk.RevWalk
 import org.eclipse.jgit.lib.ObjectId
+import com.google.common.io.Files
+import com.google.common.base.Charsets
 
 class LineByLineDiffEmailHtmlTest extends FlatSpec with ShouldMatchers {
   it should "extract the repository name from a github url" in {
@@ -28,8 +30,9 @@ class LineByLineDiffEmailHtmlTest extends FlatSpec with ShouldMatchers {
     walk.dispose()
 
     // when
-    html.build(git, commit, Nil)
+    val build = html.build(git, commit, Nil)
 
     // then
+    Files.write(build, new File("/tmp/kiwi.html"), Charsets.UTF_8)
   }
 }

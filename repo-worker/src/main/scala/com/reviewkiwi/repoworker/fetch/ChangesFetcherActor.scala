@@ -11,9 +11,9 @@ import org.eclipse.jgit.revwalk.RevCommit
 import java.io.File
 import java.net.URI
 import com.weiglewilczek.slf4s.Logging
-import akka.dispatch.{ExecutionContext, Future}
+import akka.dispatch.{Await, ExecutionContext, Future}
 import akka.util.duration._
-import akka.util.Timeout
+import akka.util.{Duration, Timeout}
 
 class ChangesFetcherActor(
     cloner: GitCloner,
@@ -22,7 +22,8 @@ class ChangesFetcherActor(
     scheduler: Scheduler
   ) extends Actor with Logging {
 
-  implicit val Timeout: Timeout = 1.minute
+  implicit val AtMost: Duration = 5.minutes
+  implicit val Timeout: Timeout = AtMost
 
   implicit lazy val execContext = ExecutionContext.defaultExecutionContext(context.system)
 
@@ -51,9 +52,8 @@ class ChangesFetcherActor(
         self ? FetchNewChangesFrom(repo)
       }
 
-      Future.sequence(futures) onComplete { either =>
-        scheduler.scheduleOnce(delay, self, FetchNewChangesFromReposEach(delay))
-      }
+      Await.result(Future.sequence(futures), AtMost)
+      self ! FetchNewChangesFromReposEach(delay)
   }
 
   def getToken(uri: URI): Option[String] = {
