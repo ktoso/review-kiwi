@@ -48,7 +48,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
     println("fileDiffs = " + fileDiffs)
 
     val data = Map(
-      "modifiedFiles"        -> generateModifiedFiles(commit, diffs),
+      "modifiedFiles"        -> generateModifiedFilesListing(commit, diffs),
       "authorGravatarUrl"    -> authorGravatarUrl,
       "authorName"           -> commit.getAuthorIdent.getName,
       "authorEmail"          -> commit.getAuthorIdent.getEmailAddress,
@@ -65,11 +65,12 @@ class LineByLineDiffEmailHtml extends HtmlReport
     superData ++ data
   }
 
-  def generateModifiedFiles(commit: RevCommit, diffs: Iterable[DiffEntry]): List[ModifiedFile] = {
+  // todo checking if todo detection works
+  def generateModifiedFilesListing(commit: RevCommit, diffs: Iterable[DiffEntry]): List[ModifiedFile] = {
     val uniqueByFile = diffs.toList.uniquifyOn(_.getNewPath)
     val nodes = for (diff <- uniqueByFile) yield generateModifiedFileNode(commit, diff)
 
-    nodes
+    nodes.sortBy(_.action.text)
   }
 
   def getRepoName(git: Git): String = {
