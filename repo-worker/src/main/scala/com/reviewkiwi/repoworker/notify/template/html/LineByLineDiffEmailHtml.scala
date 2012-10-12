@@ -37,7 +37,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
   override def buildData(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]) = {
     val superData = super.buildData(git, commit, diffs)
 
-    val fileDiffs = diffs map { diff => diff2html(git, commit, diff) }
+    val fileDiffs = diffs map { diff => diffAsDisplayableDiff(git, commit, diff) }
 
     val repoName = getRepoName(git)
     val commitUrl = getCommitUrl(repoName, commit.getName)
@@ -45,8 +45,10 @@ class LineByLineDiffEmailHtml extends HtmlReport
     val authorGravatarUrl = getSmallGravatarUrl(commit.getAuthorIdent.getEmailAddress)
     val prettyCommitDate = formatDate(commit.getAuthorIdent.getWhen)
 
+    println("fileDiffs = " + fileDiffs)
+
     val data = Map(
-      "modifiedFiles"        -> generateModifiedFilesListing(commit, diffs),
+      "modifiedFiles"        -> generateModifiedFiles(commit, diffs),
       "authorGravatarUrl"    -> authorGravatarUrl,
       "authorName"           -> commit.getAuthorIdent.getName,
       "authorEmail"          -> commit.getAuthorIdent.getEmailAddress,
@@ -57,13 +59,13 @@ class LineByLineDiffEmailHtml extends HtmlReport
       "githubRepoName"       -> repoName,
       "githubRepoUrl"        -> repoName,
       "githubCommitUrl"      -> commitUrl,
-      "diffContents,"        -> fileDiffs.mkString("\n")
+      "diffs"                -> fileDiffs
     )
 
     superData ++ data
   }
 
-  def generateModifiedFilesListing(commit: RevCommit, diffs: Iterable[DiffEntry]): List[ModifiedFile] = {
+  def generateModifiedFiles(commit: RevCommit, diffs: Iterable[DiffEntry]): List[ModifiedFile] = {
     val uniqueByFile = diffs.toList.uniquifyOn(_.getNewPath)
     val nodes = for (diff <- uniqueByFile) yield generateModifiedFileNode(commit, diff)
 
@@ -87,41 +89,47 @@ class LineByLineDiffEmailHtml extends HtmlReport
   def getGitHubRepoUrl(repoName: String): String =
     "https://github.com/" + repoName
 
-  case class ModifiedFile(action: String, fullPath: String) {
+  case class ModifiedFile(changeType: DiffEntry.ChangeType, fullPath: String) {
+    val actionIcon = changeType match {
+      case DiffEntry.ChangeType.ADD => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.AddedIconColor), Null)
+      case DiffEntry.ChangeType.COPY => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
+      case DiffEntry.ChangeType.DELETE => <b>[-]</b> % Attribute("style", Text("color:" + CssStyles.DeletedIconColor), Null)
+      case DiffEntry.ChangeType.MODIFY => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
+      case DiffEntry.ChangeType.RENAME => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
+    }
+
+    val action = changeType match {
+      case DiffEntry.ChangeType.ADD => <span>Added</span>
+      case DiffEntry.ChangeType.COPY => <span>Copied</span>
+      case DiffEntry.ChangeType.DELETE => <span>Deleted</span>
+      case DiffEntry.ChangeType.MODIFY => <span>Modified</span>
+      case DiffEntry.ChangeType.RENAME => <span>Renamed</span>
+    }
+
     val path = FilenameUtils.getPath(fullPath)
-    val fileName = FilenameUtils.getBaseName(fullPath)
+    val fileName = FilenameUtils.getName(fullPath)
   }
 
   def generateModifiedFileNode(commit: RevCommit, diff: DiffEntry): ModifiedFile = {
-    val Added = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.AddedIconColor), Null)
-    val Copied = <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
-    val Deleted = <b>[-]</b> % Attribute("style", Text("color:" + CssStyles.DeletedIconColor), Null)
+    ModifiedFile(diff.getChangeType, diff.getNewPath)
+  }
 
-    diff.getChangeType match {
-      case DiffEntry.ChangeType.ADD =>
-        ModifiedFile("Added", diff.getNewPath)
-
-      case DiffEntry.ChangeType.COPY =>
-        ModifiedFile("Copied", diff.getOldPath + " to " + diff.getNewPath)
-
-      case DiffEntry.ChangeType.DELETE =>
-        ModifiedFile("Deleted", diff.getOldPath)
-
-      case DiffEntry.ChangeType.MODIFY =>
-        ModifiedFile("Modified", diff.getNewPath)
-
-      case DiffEntry.ChangeType.RENAME =>
-         ModifiedFile("Renamed", diff.getOldPath + " => " + diff.getNewPath)
+  case class DisplayableDiff(fileIcon: String, pathBefore: String, pathAfter: String, diff: String) {
+    val boxTitle = if(pathBefore == pathAfter) {
+      FilenameUtils.getName(pathBefore)
+    } else {
+      """%s => %s""".format(pathBefore, pathAfter)
     }
   }
 
-  def diff2html(git: Git, commit: RevCommit, diff: DiffEntry): Map[String, Any] = {
+  def diffAsDisplayableDiff(git: Git, commit: RevCommit, diff: DiffEntry) = {
     implicit val repo = git.getRepository
 
-    Map(
-      "fileIcon" -> CssImages.fileImageForFile(diff.getNewPath), // todo handle renames
-      "fileName" -> diff.getNewPath, // todo handle renames
-      "diff"     -> diff.asDiffHTML
+    DisplayableDiff(
+      fileIcon = CssImages.fileImageForFile(diff.getNewPath),
+      pathBefore= diff.getOldPath,
+      pathAfter = diff.getNewPath,
+      diff = diff.asDiffHTML
     )
   }
 

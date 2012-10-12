@@ -12,6 +12,8 @@ import com.weiglewilczek.slf4s.Logging
 class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtml, reportSender: ActorRef)
   extends Actor with Logging {
 
+  val recipients = "konrad.malawski@softwaremill.pl" // todo hardcoded
+
   def receive = {
     case NewCommit(revCommit, repoDir) if alreadyNotified(Git.open(repoDir), revCommit) =>
       logger.info("Already notified about commit [%s] in [%s], skipping sending email.".format(revCommit.getName, repoDir))
@@ -25,8 +27,8 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
       val body = htmlReporter.build(git, revCommit, diffs)
 
       reportSender ! SendEmail(
-        "konrad.malawski@softwaremill.pl", // todo hardcoded
-        topic = revCommit.getAuthorIdent.getName + " pushed [" + revCommit.getFullMessage.split("\n").head + "]",
+        recipients,
+        topic = "Commit [" + revCommit.getFullMessage.split("\n").head + "] pushed by " + revCommit.getAuthorIdent.getName ,
         body = body,
         replyTo = Some(revCommit.getAuthorIdent.getEmailAddress)
       )

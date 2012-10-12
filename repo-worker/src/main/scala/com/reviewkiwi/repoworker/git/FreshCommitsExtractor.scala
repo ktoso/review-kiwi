@@ -14,6 +14,17 @@ class FreshCommitsExtractor extends Logging {
 
   val MaxFreshCommits = 20
 
+  def head(repoDir: File): RevCommit = {
+    val git = Git.open(repoDir)
+
+    val commits = getLatestCommitsFromRepo(git)
+
+    val withoutAlreadyNotifiedAbout = commits.head
+
+    withoutAlreadyNotifiedAbout
+  }
+
+
   // todo obviously fix ;-)
   def notYetNotifiedAbout(repoDir: File): List[RevCommit] = {
     val git = Git.open(repoDir)

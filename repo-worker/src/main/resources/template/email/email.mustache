@@ -147,7 +147,7 @@
                         <div class="files-listing">
                             <h2>Modified Files: </h2>
                             {{#modifiedFiles}}
-                              {{action}} <b>{{path}}</b>
+                                {{actionIcon}} {{action}}: {{path}}<b>{{fileName}}</b> <br/>
                             {{/modifiedFiles}}
                         </div>
                     </td>
@@ -165,7 +165,9 @@
                 <!-- End of Modified Files Listing -->
 
                 <!-- Start of commits (files) -->
-                {{diffContents}}
+                {{#diffs}}
+                    {{>file_diff}}
+                {{/diffs}}
                 <!-- End of commits (files) -->
 
                 <!-- Start of Footer -->
