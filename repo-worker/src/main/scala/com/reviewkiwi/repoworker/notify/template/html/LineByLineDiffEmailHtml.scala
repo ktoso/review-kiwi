@@ -26,9 +26,6 @@ class LineByLineDiffEmailHtml extends HtmlReport
   def renderEmail(attrs: Map[String, Any] = Map(), bindings: Iterable[Binding] = Nil) =
     engine.layout("/template/email/email.mustache", attrs, bindings)
 
-  val EmailTemplate = io.Source.fromInputStream(getClass.getResourceAsStream("/template/email/email.html")).getLines().mkString("\n")
-  val EmailFileTemplate = io.Source.fromInputStream(getClass.getResourceAsStream("/template/email/file.html")).getLines().mkString("\n")
-
   def build(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]) = {
     val data = buildData(git, commit, diffs)
     renderEmail(data)
@@ -44,8 +41,6 @@ class LineByLineDiffEmailHtml extends HtmlReport
     val commitMessageLines = commit.getFullMessage.split("\n")
     val authorGravatarUrl = getSmallGravatarUrl(commit.getAuthorIdent.getEmailAddress)
     val prettyCommitDate = formatDate(commit.getAuthorIdent.getWhen)
-
-    println("fileDiffs = " + fileDiffs)
 
     val data = Map(
       "modifiedFiles"        -> generateModifiedFilesListing(commit, diffs),

@@ -7,6 +7,7 @@ object InterestType extends Enumeration {
     FixMe,
     ToDo,
     Warning,
+    Caution,
     AntiPattern,
     ProbableError,
     StyleIssue = Value

@@ -1,11 +1,8 @@
 package com.reviewkiwi.repoworker.marker
 
-import InterestType._
+object TodoLineMarker extends InterestingLineMarker {
 
-class TodoLineExtractor extends InterestingLineExtractor {
-
-
-  val Todo = """(?i).*// ?TODO(\w+)""".r
+  val Todo = """(?i).* // ?todo(.*)""".r
 
   def extract(fileName: String, line: String, lineNumber: Int): Option[InterestingLine] = {
     (Todo findFirstIn line) map { l => InterestingLine(fileName, l, lineNumber, InterestType.ToDo) }

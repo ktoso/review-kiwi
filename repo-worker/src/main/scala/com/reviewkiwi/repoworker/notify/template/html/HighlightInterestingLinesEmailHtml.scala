@@ -6,12 +6,16 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.apache.commons.io.FilenameUtils
 import org.eclipse.jgit.diff.DiffEntry.ChangeType
 import com.reviewkiwi.common.git.GitDiffs
-import com.reviewkiwi.repoworker.marker.{InterestingLine, InterestingLineExtractor}
+import com.reviewkiwi.repoworker.marker.{TodoLineMarker, InterestingLine, InterestingLineMarker}
+import com.reviewkiwi.repoworker.marker.scala.rogue.UpsertWithoutReturnNewLineMarker
 
 trait HighlightInterestingLinesEmailHtml extends HtmlReport
   with GitDiffs {
 
-  def interestingLineExtractors: List[InterestingLineExtractor] = Nil
+  def interestingLineExtractors: List[InterestingLineMarker] =
+    TodoLineMarker ::
+    UpsertWithoutReturnNewLineMarker ::
+      Nil
 
   override abstract def buildData(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]): Map[String, Any] = {
     val superData = super.buildData(git, commit, diffs)
@@ -27,7 +31,7 @@ trait HighlightInterestingLinesEmailHtml extends HtmlReport
     implicit val repo = git.getRepository
 
     val them = diffs filterNot { _.getChangeType == ChangeType.DELETE } map { diff =>
-      val fileName = FilenameUtils.getBaseName(diff.getNewPath)
+      val fileName = FilenameUtils.getName(diff.getNewPath)
 
       val lines = diff.asDiffString.split("\n")
       lines.toList.zipWithIndex map { case (line, n) => markInterestingLines(fileName, line, n) }
