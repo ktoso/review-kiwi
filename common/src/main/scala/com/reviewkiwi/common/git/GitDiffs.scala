@@ -4,15 +4,18 @@ import org.eclipse.jgit.diff.{DiffFormatter, DiffEntry}
 import java.io.ByteArrayOutputStream
 import org.eclipse.jgit.lib.Repository
 import xml.Elem
+import scalaz.Scalaz._
 import com.reviewkiwi.common.css.CssStyles
 
 trait GitDiffs {
+
+  case class NumberedDiffEntryLine(line: String, lineNumber: Int)
 
   implicit def presentDiffEntry(d: DiffEntry)(implicit repo: Repository) = new DiffEntryPresenter(d)(repo)
 
   class DiffEntryPresenter(diff: DiffEntry)(repo: Repository) {
 
-    val InfoLine = """@@ -\d+,\d+ \+\d+,\d+ @@""".r
+    val InfoLine = """@@ -(\d+),(\d+) \+(\d+),(\d+) @@""".r
 
     def asDiffHTML: String = {
       asDiffString
@@ -20,6 +23,25 @@ trait GitDiffs {
         .drop(4)
         .map(l => asDiffNode(l).toString )
         .mkString("\n")
+    }
+
+    def asNumberedDiffLines: List[NumberedDiffEntryLine] = {
+      val lines = asDiffString.split("\n").drop(5).toList
+      lines
+
+      var linesBase: Int = 0
+      val numberedLines = lines map {
+        case line @ InfoLine(from, before, to, added) =>
+          linesBase = from.toInt
+          NumberedDiffEntryLine(line, 0)
+
+        case line =>
+          val numbered = NumberedDiffEntryLine(line, linesBase)
+          linesBase += 1
+          numbered
+      }
+
+      numberedLines
     }
 
     def asDiffString = {

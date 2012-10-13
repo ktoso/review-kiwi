@@ -7,16 +7,21 @@ import org.apache.commons.io.FilenameUtils
 object CssImages {
 
   lazy val h2JavaFileStyle = fileImage("/images/page_white_cup.png")
+  lazy val h2ScalaFileStyle = fileImage("/images/page_white_scala.png")
   lazy val h2RubyFileStyle = fileImage("/images/page_white_ruby.png")
   lazy val h2MarkdownFileStyle = fileImage("/images/page_white_text.png")
+  lazy val h2MustacheFileStyle = fileImage("/images/page_white_mustache.png")
   lazy val h2CodeFileStyle = fileImage("/images/page_white_code.png")
+  lazy val h2ImageFileStyle = fileImage("/images/image.png")
 
   def fileImageForFile(file: String) = FilenameUtils.getExtension(file) match {
-    case "java" => h2JavaFileStyle
+    case "scala" | "sbt" => h2ScalaFileStyle
     case "groovy" => h2JavaFileStyle
-    case "scala" => h2JavaFileStyle
+    case "java" => h2JavaFileStyle
     case "rb" | "irb" => h2RubyFileStyle
+    case "mustache" => h2MustacheFileStyle
     case "md" => h2MarkdownFileStyle
+    case "jpg" | "png" | "gif" => h2ImageFileStyle
     case _ => h2CodeFileStyle
   }
 
