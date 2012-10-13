@@ -121,11 +121,16 @@ class LineByLineDiffEmailHtml extends HtmlReport
   }
 
   case class DisplayableDiff(fileIcon: String, pathBefore: String, pathAfter: String, diff: String) {
-    val boxTitle = if(pathBefore == pathAfter) {
-      FilenameUtils.getName(pathBefore)
-    } else {
-      """%s => %s""".format(pathBefore, pathAfter)
-    }
+    val boxTitle =
+      if(pathBefore == pathAfter) {
+        FilenameUtils.getName(pathBefore)
+      } else if(pathBefore == "/dev/null") {
+        FilenameUtils.getName(pathAfter)
+      } else if(pathAfter == "/dev/null") {
+        <span style="text-decoration: line-through">{FilenameUtils.getName(pathBefore)}</span>
+      } else {
+        """%s => %s""".format(pathBefore, pathAfter)
+      }
   }
 
   def diffAsDisplayableDiff(git: Git, commit: RevCommit, diff: DiffEntry) = {
