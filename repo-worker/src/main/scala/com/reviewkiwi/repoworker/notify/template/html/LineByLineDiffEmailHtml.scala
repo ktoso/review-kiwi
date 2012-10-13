@@ -15,6 +15,7 @@ import com.reviewkiwi.common.css.CssStyles
 import util.matching.Regex
 import org.fusesource.scalate.{Binding, TemplateEngine}
 import org.apache.commons.io.FilenameUtils
+import org.eclipse.jgit.diff.DiffEntry.ChangeType
 
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar with UniquifyVerb
@@ -65,7 +66,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
     val uniqueByFile = diffs.toList.uniquifyOn(_.getNewPath)
     val nodes = for (diff <- uniqueByFile) yield generateModifiedFileNode(commit, diff)
 
-    nodes.sortBy(_.action.text)
+    nodes.sortBy(_.action)
   }
 
   def getRepoName(git: Git): String = {
@@ -85,7 +86,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
   def getGitHubRepoUrl(repoName: String): String =
     "https://github.com/" + repoName
 
-  case class ModifiedFile(changeType: DiffEntry.ChangeType, fullPath: String) {
+  case class ModifiedFile(changeType: DiffEntry.ChangeType, diff: DiffEntry) {
     val actionIcon = changeType match {
       case DiffEntry.ChangeType.ADD => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.AddedIconColor), Null)
       case DiffEntry.ChangeType.COPY => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
@@ -95,19 +96,28 @@ class LineByLineDiffEmailHtml extends HtmlReport
     }
 
     val action = changeType match {
-      case DiffEntry.ChangeType.ADD => <span>Added</span>
-      case DiffEntry.ChangeType.COPY => <span>Copied</span>
-      case DiffEntry.ChangeType.DELETE => <span>Deleted</span>
-      case DiffEntry.ChangeType.MODIFY => <span>Modified</span>
-      case DiffEntry.ChangeType.RENAME => <span>Renamed</span>
+      case DiffEntry.ChangeType.ADD => "Added"
+      case DiffEntry.ChangeType.COPY => "Copied"
+      case DiffEntry.ChangeType.DELETE => "Deleted"
+      case DiffEntry.ChangeType.MODIFY => "Modified"
+      case DiffEntry.ChangeType.RENAME => "Renamed"
     }
 
-    val path = FilenameUtils.getPath(fullPath)
-    val fileName = FilenameUtils.getName(fullPath)
+    val displayFileName =
+      if(changeType == ChangeType.RENAME)
+        <span>
+          {FilenameUtils.getPath(diff.getOldPath)}<b>{FilenameUtils.getName(diff.getOldPath)}</b>
+          ->
+          {FilenameUtils.getPath(diff.getNewPath)}<b>{FilenameUtils.getName(diff.getNewPath)}</b>
+        </span>
+      else if(changeType == ChangeType.DELETE)
+        <span style="text-decoration: line-through;">{FilenameUtils.getPath(diff.getOldPath)}<b>{FilenameUtils.getName(diff.getOldPath)}</b></span>
+      else
+        <span>{FilenameUtils.getPath(diff.getNewPath)}<b>{FilenameUtils.getName(diff.getNewPath)}</b></span>
   }
 
   def generateModifiedFileNode(commit: RevCommit, diff: DiffEntry): ModifiedFile = {
-    ModifiedFile(diff.getChangeType, diff.getNewPath)
+    ModifiedFile(diff.getChangeType, diff)
   }
 
   case class DisplayableDiff(fileIcon: String, pathBefore: String, pathAfter: String, diff: String) {
