@@ -120,7 +120,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
     ModifiedFile(diff.getChangeType, diff)
   }
 
-  case class DisplayableDiff(fileIcon: String, pathBefore: String, pathAfter: String, diff: String) {
+  case class DisplayableDiff(fileIcon: String, pathBefore: String, pathAfter: String, diffLines: List[NumberedDiffEntryLine]) {
     val boxTitle =
       if(pathBefore == pathAfter) {
         FilenameUtils.getName(pathBefore)
@@ -140,7 +140,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
       fileIcon = CssImages.fileImageForFile(diff.getNewPath),
       pathBefore= diff.getOldPath,
       pathAfter = diff.getNewPath,
-      diff = diff.asDiffHTML
+      diffLines = diff.asNumberedDiffLines
     )
   }
 

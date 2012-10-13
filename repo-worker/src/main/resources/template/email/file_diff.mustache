@@ -16,18 +16,32 @@
             {{{fileIcon}}} {{boxTitle}}
         </h2>
 
-        <div style="border: 1px solid #d8d8d8;background:white;margin-bottom: 1em;overflow: auto;padding: 0.5em 0;max-width: 580px; width: 580px">
-                {{{diff}}}
+        <div style="border: 1px solid #d8d8d8;background:white;margin-bottom: 1em;overflow: auto;padding: 0;max-width: 580px; width: 580px">
+            {{#diffLines}}
+            <table bgcolor="{{lineBackgroundColor}}" style="background-color: {{lineBackgroundColor}}; padding: 0; margin: 0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                    <td width="30" style="width:30px; background: #EAF2F5; font-family: Consolas, 'Liberation Mono', Courier, monospace; padding: 0; margin: 0">
+                        <div style="width: 30px; text-align: right; padding-right: 3px;">
+                            {{prettyLineNumber}}
+                        </div>
+                    </td>
+                    <td width="580">
+                        {{{html}}}
+                    </td>
+                </tr>
+            </table>
+            {{/diffLines}}
         </div>
 
         <br>
 
-        <div style="text-align: right">
-            <a style="text-decoration:none; color:#86ac3d;" href="{{githubCommitUrl}}" target="_blank">
-                <img alt="»" height="7" src="http://review.kiwi.project13.pl/images/arrow.png" vspace="0" style="border:0;" width="12">
-                &nbsp;View on github
-            </a>
-        </div>
+        <!--<div style="text-align: right">-->
+            <!--<a style="text-decoration:none; color:#86ac3d;" href="{{githubCommitUrl}}" target="_blank">-->
+                <!--<img alt="»" height="7" src="http://review.kiwi.project13.pl/images/arrow.png" vspace="0"-->
+                     <!--style="border:0;" width="12">-->
+                <!--&nbsp;View on github-->
+            <!--</a>-->
+        <!--</div>-->
     </td>
 </tr>
 <tr>

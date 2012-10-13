@@ -49,7 +49,7 @@ with UniquifyVerb {
     import net.liftweb.json._
 
     val request = parse(new String(req.body.open_!)).extract[CreateNewRepoRequest]
-    val user = KiwiUser.findByApiKey(req.param("apiKey").getOrElse(MyApiKey)).get
+    val user = KiwiUser.findOAuthToken(req.param("apiKey").getOrElse(MyApiKey)).get
 
     val newRepo = KiwiRepository.createRecord
       .githubRepoId(-util.Random.nextInt(900000))
@@ -86,7 +86,7 @@ with UniquifyVerb {
   def getAllReposForUser(req: Req): Option[JValue] = try {
     import net.liftweb.json._
 
-    val user = KiwiUser.findByApiKey(req.param("apiKey").getOrElse(MyApiKey)).get
+    val user = KiwiUser.findOAuthToken(req.param("apiKey").getOrElse(MyApiKey)).get
 
     val repos = KiwiRepository.where(_.githubRepoId in user.repos.is).fetch()
     val uniques = repos.uniquifyOn(_.fetchUrl.is)

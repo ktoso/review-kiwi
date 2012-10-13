@@ -55,4 +55,8 @@ object KiwiRepository extends KiwiRepository with MongoMetaRecord[KiwiRepository
     all.uniquifyOn(_.fetchUrl.is) // todo temporary hack, they should be unique anyway
   }
 
+  def findByGithubId(id: Long) = {
+    meta where (_.githubRepoId eqs id) get()
+  }
+
 }

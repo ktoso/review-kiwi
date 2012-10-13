@@ -2,19 +2,26 @@ package com.reviewkiwi.common.css
 
 object CssStyles {
 
-  val InsertColor = "#DFD"
+  val NormalBackgroundColor = "#FFF"
+  val InsertBackgroundColor = "#DFD"
+  val DeleteBackgroundColor = "#FDD"
+  val InfoBackgroundColor = "#EAF2F5"
+
   val AddedIconColor = "#92A942"
   val CopiedColor = "#E9BF2F"
-  val DeletedColor = "#FDD"
   val DeletedIconColor = "red"
-  val InfoLineColor = "#EAF2F5"
 
-  val preStyle = """font-family: Consolas, "Liberation Mono", Courier, monospace; padding:0; margin:0;max-width: 600px;"""
+  val preStyle = """font-family: Consolas, "Liberation Mono", Courier, monospace; max-width: 100%; width: 100%; padding:0; margin:0;"""
 
-  val insertLine = "background-color: " + InsertColor + ";" + preStyle
-  val deleteLine = "background-color: " + DeletedColor + ";" + preStyle
-  val infoLine = "background-color: " + InfoLineColor + ";" + preStyle
-  val normalLine = "background-color: #FFFFFF;" + preStyle
+  val NormalBackgroundStyle = "background-color: " + "#FFFFFF"
+  val InsertBackgroundStyle = "background-color: " + InsertBackgroundColor
+  val DeleteBackgroundStyle = "background-color: " + DeleteBackgroundColor
+  val InfoBackgroundStyle = "background-color: " + InfoBackgroundColor
+
+  val insertLine = InsertBackgroundStyle + ";" + preStyle
+  val deleteLine =  DeleteBackgroundStyle + ";" + preStyle
+  val infoLine = InfoBackgroundStyle + ";" + preStyle
+  val normalLine = NormalBackgroundStyle + ";" + preStyle
 
   val h2Style = """background: #fafafa;
                   |background: -moz-linear-gradient(#fafafa, #eaeaea);

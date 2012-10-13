@@ -37,6 +37,7 @@ object KiwiUser extends KiwiUser with MongoMetaRecord[KiwiUser] {
 
   import com.foursquare.rogue.Rogue._
 
-  def findByApiKey(apiKey: String) =
-    KiwiUser.where(_.oauthToken eqs apiKey).get()
+  def findOAuthToken(apiKey: String): Option[KiwiUser] = {
+    meta where(_.oauthToken eqs apiKey) get()
+  }
 }

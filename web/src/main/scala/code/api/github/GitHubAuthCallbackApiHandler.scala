@@ -49,7 +49,7 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
 
         val repos = importRepositories(github)
 
-        KiwiUser.createRecord
+        val user = KiwiUser.findOAuthToken(token) getOrElse KiwiUser.createRecord
           .name(ghUser)
           .oauthToken(token)
           .oauthTokenType(tokenType)
@@ -82,11 +82,10 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
 
   def importRepositories(github: GitHubClient) = {
     val repositoryService = new RepositoryService(github)
-    repositoryService.getRepositories map {
-      repo =>
+    repositoryService.getRepositories map { repo =>
 
       // todo findOrUpdate
-        val kiwiRepo = KiwiRepository.createRecord
+        val kiwiRepo = KiwiRepository.findByGithubId(repo.getId) getOrElse KiwiRepository.createRecord
           .name(repo.getName)
           .fetchUrl(repo.getCloneUrl)
           .githubRepoId(repo.getId)
