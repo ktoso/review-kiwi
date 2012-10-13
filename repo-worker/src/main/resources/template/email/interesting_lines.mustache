@@ -1,0 +1,47 @@
+{{#hasInterestingLines}}
+<tr style="width: 620px">
+    <td valign="bottom" style="height:5px;margin:0;padding:20px 0 0 0;line-height:0;font-size:2px;"><img
+            alt=""
+            height="5"
+            src="http://review.kiwi.project13.pl/images/Newsletter_border_top.png"
+            vspace="0"
+            style="border:0; padding:0; margin:0; line-height:0; display:block;"
+            width="620">
+    </td>
+</tr>
+<tr style="width: 620px">
+    <td bgcolor="#FFFFFF"
+        style="padding: 10px 21px 10px 20px; background:#ffffff;background-color:#ffffff; padding-right: 21px"
+        valign="top">
+        <div class="files-listing">
+            <h2>Interesting Lines: </h2>
+
+            <div>
+                {{#interestingLines}}
+                <div style="border: solid 1px gray; padding: 0.5em; margin-bottom: 0.5em;">
+                    [{{interestType}}] in <b>{{fileName}}</b> @ {{lineNumber}} <br/>
+
+                    <pre style="background: #ececec"><code>{{line}}</code></pre>
+
+                    {{#suggestion}}
+                    <blockquote
+                            style="margin: 1em 3em;padding: .5em 1em;border-left: 5px solid #fce27c;background-color: #f6ebc1; ">
+                        <b>Suggestion:</b> <br>
+                        {{{suggestion}}}
+                    </blockquote>
+                    {{/suggestion}}
+                </div>
+                {{/interestingLines}}
+            </div>
+        </div>
+    </td>
+</tr>
+<tr style="width: 620px">
+    <td valign="top" style="height:5px;margin:0;padding:0;line-height:0;font-size:2px;">
+        <img alt="" height="5"
+             src="http://review.kiwi.project13.pl/images/Newsletter_border_Bottom.png"
+             vspace="0"
+             style="border:0; padding:0; margin:0; line-height:0; display:block;"
+             width="620"></td>
+</tr>
+{{/hasInterestingLines}}

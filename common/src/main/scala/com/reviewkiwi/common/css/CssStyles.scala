@@ -7,9 +7,9 @@ object CssStyles {
   val DeleteBackgroundColor = "#FDD"
   val InfoBackgroundColor = "#EAF2F5"
 
-  val AddedIconColor = "#92A942"
+  val InsertIconColor = "#8EC340"
   val CopiedColor = "#E9BF2F"
-  val DeletedIconColor = "red"
+  val DeletedIconColor = "#A43B00"
 
   val preStyle = """font-family: Consolas, "Liberation Mono", Courier, monospace; max-width: 100%; width: 100%; padding:0; margin:0;"""
 

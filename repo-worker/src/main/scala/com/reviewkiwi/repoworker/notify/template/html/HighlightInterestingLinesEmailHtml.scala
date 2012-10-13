@@ -20,8 +20,11 @@ trait HighlightInterestingLinesEmailHtml extends HtmlReport
   override abstract def buildData(git: Git, commit: RevCommit, diffs: Iterable[DiffEntry]): Map[String, Any] = {
     val superData = super.buildData(git, commit, diffs)
 
+    val interestingLines = findInterestingLines(git, commit, diffs)
+
     val data = Map(
-      "interestingLines" -> findInterestingLines(git, commit, diffs)
+      "interestingLines" -> interestingLines,
+      "hasInterestingLines" -> !interestingLines.isEmpty
     )
 
     superData ++ data

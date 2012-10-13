@@ -20,7 +20,8 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar with UniquifyVerb
   with GitWalks with GitObjects with GitDiffs
-  with HighlightInterestingLinesEmailHtml {
+  with HighlightInterestingLinesEmailHtml
+  with CommitStatsEmailHtml{
 
   val engine = new TemplateEngine
 
@@ -88,7 +89,7 @@ class LineByLineDiffEmailHtml extends HtmlReport
 
   case class ModifiedFile(changeType: DiffEntry.ChangeType, diff: DiffEntry) {
     val actionIcon = changeType match {
-      case DiffEntry.ChangeType.ADD => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.AddedIconColor), Null)
+      case DiffEntry.ChangeType.ADD => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.InsertIconColor), Null)
       case DiffEntry.ChangeType.COPY => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
       case DiffEntry.ChangeType.DELETE => <b>[-]</b> % Attribute("style", Text("color:" + CssStyles.DeletedIconColor), Null)
       case DiffEntry.ChangeType.MODIFY => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
