@@ -22,7 +22,7 @@ class ChangesFetcherActor(
     scheduler: Scheduler
   ) extends Actor with Logging {
 
-  implicit val AtMost: Duration = 5.minutes
+  implicit val AtMost: Duration = 15.minutes
   implicit val Timeout: Timeout = AtMost
 
   implicit lazy val execContext = ExecutionContext.defaultExecutionContext(context.system)
@@ -40,20 +40,21 @@ class ChangesFetcherActor(
       val uri = new URI(kiwiRepo.fetchUrl.is)
       val token = getToken(uri)
 
+      logger.info("Fetch new changes from [%s]".format(uri))
+
       val repoDir = cloner.fetchOrClone(uri, token)
       val changes = newChangesExtractor.notYetNotifiedAbout(repoDir)
       notifyAbout(changes, repoDir)
 
+      self ! FetchNewChangesFrom(kiwiRepo)
+
     case FetchNewChangesFromReposEach(delay) =>
       logger.info("Got fetch changes from each repo request, will execute and check again in [%s]".format(delay))
 
-      val futures = KiwiRepository.findAllToFetch().map { repo =>
+      KiwiRepository.findAllToFetch().map { repo =>
         logger.info("Sending FetchNewChangesFrom [%s] ".format(repo.githubRepoId))
-        self ? FetchNewChangesFrom(repo)
+        self ! FetchNewChangesFrom(repo)
       }
-
-      Await.result(Future.sequence(futures), AtMost)
-      self ! FetchNewChangesFromReposEach(delay)
   }
 
   def getToken(uri: URI): Option[String] = {

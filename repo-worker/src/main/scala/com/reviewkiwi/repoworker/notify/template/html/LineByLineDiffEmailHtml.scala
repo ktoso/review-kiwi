@@ -92,8 +92,11 @@ class LineByLineDiffEmailHtml extends HtmlReport
       case DiffEntry.ChangeType.ADD => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.InsertIconColor), Null)
       case DiffEntry.ChangeType.COPY => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
       case DiffEntry.ChangeType.DELETE => <b>[-]</b> % Attribute("style", Text("color:" + CssStyles.DeletedIconColor), Null)
-      case DiffEntry.ChangeType.MODIFY => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
       case DiffEntry.ChangeType.RENAME => <b>[+]</b> % Attribute("style", Text("color:" + CssStyles.CopiedColor), Null)
+      case DiffEntry.ChangeType.MODIFY =>
+        val plus = <span>[+</span> % Attribute("style", Text("color:" + CssStyles.InsertIconColor), Null)
+        val minus = <span>-]</span> % Attribute("style", Text("color:" + CssStyles.DeletedIconColor), Null)
+        <b>{plus}/{minus}</b>
     }
 
     val action = changeType match {

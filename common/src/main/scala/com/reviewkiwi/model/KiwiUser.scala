@@ -12,7 +12,8 @@ class KiwiUser private() extends MongoRecord[KiwiUser] with ObjectIdPk[KiwiUser]
   lazy val meta = KiwiUser
 
   object name extends StringField(this, 255) with UnderscoreName
-  object email extends StringField(this, 255) with UnderscoreName
+  object primaryEmail extends StringField(this, 255) with UnderscoreName
+  object emails extends MongoListField[KiwiUser, String](this) with UnderscoreName
 
   object oauthToken extends StringField(this, 500) with UnderscoreName
   object oauthTokenType extends StringField(this, 20) with UnderscoreName
@@ -30,7 +31,7 @@ object KiwiUser extends KiwiUser with MongoMetaRecord[KiwiUser] {
   def ensureIndexes() {
     ensureIndex(watchedRepos.name -> 1)
     ensureIndex(oauthToken.name -> 1)
-    ensureIndex(email.name -> 1)
+    ensureIndex(primaryEmail.name -> 1)
   }
 
   // finders
