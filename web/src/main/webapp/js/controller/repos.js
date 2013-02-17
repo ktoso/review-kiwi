@@ -1,6 +1,7 @@
-function ReposCtrl($scope, Repo, RepoWatch) {
+//noinspection JSUnusedGlobalSymbols
+function ReposCtrl($scope, $location, Repo, RepoWatch) {
 
-    $scope.user = "ktoso";
+    $scope.location = $location;
 
     $scope.enablePooling = function(repo) {
         $scope.switchPooling(repo, true)
@@ -23,13 +24,19 @@ function ReposCtrl($scope, Repo, RepoWatch) {
 
     $scope.createNewRepository = function(name, url) {
         Repo.create(
-            {name: name, url: url, watcher: $scope.user},
+            {name: name, url: url, user: $scope.userId},
             function() { $scope.loadRepos() })
     };
 
     $scope.loadRepos = function() {
-        $scope.repos = Repo.query();
+        // $location seems to hate me, see https://github.com/angular/angular.js/issues/1521 no idea why
+
+        $scope.repos = Repo.load({u: $scope.userId});
     };
+
+    $scope.userId = $scope.userId = location.search.replace('?u=', '');
 
     $scope.loadRepos();
 }
+
+ReposCtrl.$inject = ['$scope', '$location', 'Repo', 'RepoWatch'];

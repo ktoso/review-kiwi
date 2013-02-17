@@ -18,7 +18,7 @@ class KiwiUser private() extends MongoRecord[KiwiUser] with ObjectIdPk[KiwiUser]
   object oauthToken extends StringField(this, 500) with UnderscoreName
   object oauthTokenType extends StringField(this, 20) with UnderscoreName
 
-  object repos extends MongoListField[KiwiUser, Long](this) with UnderscoreName
+  object repos extends MongoListField[KiwiUser, String](this) with UnderscoreName
 
   object watchedRepos extends MongoListField[KiwiUser, Long](this) with UnderscoreName
 

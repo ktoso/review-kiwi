@@ -6,15 +6,16 @@ import net.liftweb.json.JsonDSL._
 import com.weiglewilczek.slf4s.Logging
 import com.reviewkiwi.model.{KiwiRepository, KiwiUser}
 import com.reviewkiwi.common.util.UniquifyVerb
-import net.liftweb.http.InMemoryResponse
 import scala.Some
 import com.foursquare.rogue.Rogue._
 import net.liftweb.json.JsonAST.{JObject, JValue}
+import org.bson.types.ObjectId
+import java.util.UUID
+import net.liftweb.http.InMemoryResponse
+import scala.Some
 
 object WatchReposApiHandler extends RestHelper with Logging
 with UniquifyVerb {
-
-  val MyApiKey = "e0915567a4a4b02d2a1b731997050bc3642a95d5"
 
   val ErrorResponse = ("error" -> "failed to compute") ~ ("code" -> "500")
 
@@ -33,26 +34,31 @@ with UniquifyVerb {
   }
 
   def respondOrError(response: Option[JValue]) = {
-    val ret = response getOrElse ErrorResponse
+    val (r: InMemoryResponse, code) = response match {
+      case Some(ret) => JsonResponse(ret).toResponse.asInstanceOf[InMemoryResponse] -> 200
+      case None      => JsonResponse(ErrorResponse).toResponse.asInstanceOf[InMemoryResponse] -> 500
+    }
 
-    val json = JsonResponse(ret).toResponse.asInstanceOf[InMemoryResponse]
-    InMemoryResponse(json.data, ("Content-Length", json.data.length.toString) ::("Content-Type", "application/json") :: Nil, Nil, 200)
+    InMemoryResponse(r.data, ("Content-Length", r.data.length.toString) ::("Content-Type", "application/json") :: Nil, Nil, code)
   }
 
 
 
-  case class CreateNewRepoRequest(name: String, url: String)
+  case class CreateNewRepoRequest(name: String, url: String, user: String)
 
-  case class SwitchPoolingRequest(github_repo_id: Int, pooling: Boolean)
+  case class SwitchPoolingRequest(github_repo_id: String, pooling: Boolean)
 
   def tryCreateRepo(req: Req): Option[JValue] = try {
     import net.liftweb.json._
 
     val request = parse(new String(req.body.open_!)).extract[CreateNewRepoRequest]
-    val user = KiwiUser.findOAuthToken(req.param("apiKey").getOrElse(MyApiKey)).get
+
+    logger.info("Got params to create new repo: [%s] ".format(req.params))
+
+    val user = KiwiUser.find(new ObjectId(request.user)).get
 
     val newRepo = KiwiRepository.createRecord
-      .githubRepoId(-util.Random.nextInt(900000))
+      .githubRepoId(UUID.randomUUID.toString)
       .fetchUrl(request.url)
       .name(request.name)
       .save(true)
@@ -71,6 +77,8 @@ with UniquifyVerb {
 
     val parsed = parse(new String(req.body.open_!)).extract[SwitchPoolingRequest]
 
+    logger.info("Switching pooling mode for repo [%s] ".format(parsed.github_repo_id))
+
     val updatedRepo = KiwiRepository
       .where(_.githubRepoId eqs parsed.github_repo_id)
       .findAndModify(_.fetchUsingPooling setTo parsed.pooling)
@@ -86,7 +94,10 @@ with UniquifyVerb {
   def getAllReposForUser(req: Req): Option[JValue] = try {
     import net.liftweb.json._
 
-    val user = KiwiUser.findOAuthToken(req.param("apiKey").getOrElse(MyApiKey)).get
+    val userId = req.param("u").get
+    logger.info("Checking repos for user: %s".format(userId))
+
+    val user = KiwiUser.find(new ObjectId(userId)).get
 
     val repos = KiwiRepository.where(_.githubRepoId in user.repos.is).fetch()
     val uniques = repos.uniquifyOn(_.fetchUrl.is)

@@ -12,6 +12,7 @@ import com.reviewkiwi.model.{KiwiRepository, KiwiRepository$, KiwiUser}
 import scalaz.Scalaz._
 import org.eclipse.egit.github.core.service.RepositoryService
 import collection.JavaConversions._
+import org.bson.types.ObjectId
 
 object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
 
@@ -26,20 +27,26 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
 
   serve {
     case "api" :: "github" :: "callback" :: Nil Get req => {
-      val response: Option[JValue] = authUser(req)
+      val maybeAuthedUserObjectId: Option[ObjectId] = authUser(req)
 
-      val ret = response getOrElse ErrorResponse
+      maybeAuthedUserObjectId match {
+        case Some(userId) =>
+          S.redirectTo("/repos/index?u=" + userId)
 
-      val json = JsonResponse(ret).toResponse.asInstanceOf[InMemoryResponse]
-//      InMemoryResponse(json.data, ("Content-Length", json.data.length.toString) ::("Content-Type", "application/json") :: Nil, Nil, 200)
-      S.redirectTo("/repos/index")
+        case None =>
+          val ret = ErrorResponse
+          val json = JsonResponse(ret).toResponse.asInstanceOf[InMemoryResponse]
+          InMemoryResponse(json.data, ("Content-Length", json.data.length.toString) ::("Content-Type", "application/json") :: Nil, Nil, 200)
+      }
     }
   }
 
-  def authUser(req: Req): Option[JValue] = try {
+  def authUser(req: Req): Option[ObjectId] = try {
     val code = req.param("code").open_!
 
     val response = getGithubAuthTokenResponse(code)
+
+    logger.info("Got auth response from github: " + response)
 
     response match {
       case AccessTokenResponse(token, tokenType) =>
@@ -56,7 +63,7 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
           .repos(repos.flatten.toList)
           .save(true)
 
-        Some(("auth" -> "successful") ~ ("message" -> "Welcome to Review Kiwi! Note that it's not even Alpha though..."))
+        Some(user.id.get)
 
       case _ => None
     }
@@ -88,7 +95,7 @@ object GitHubAuthCallbackApiHandler extends RestHelper with Logging {
         val kiwiRepo = KiwiRepository.findByGithubId(repo.getId) getOrElse KiwiRepository.createRecord
           .name(repo.getName)
           .fetchUrl(repo.getCloneUrl)
-          .githubRepoId(repo.getId)
+          .githubRepoId(repo.getId.toString)
           .save(true)
 
         kiwiRepo.githubRepoId.get

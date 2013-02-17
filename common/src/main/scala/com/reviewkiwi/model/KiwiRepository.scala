@@ -16,7 +16,7 @@ class KiwiRepository private() extends MongoRecord[KiwiRepository] with ObjectId
 
   lazy val meta = KiwiRepository
 
-  object githubRepoId extends OptionalLongField(this) with UnderscoreName
+  object githubRepoId extends OptionalStringField(this, 255) with UnderscoreName
 
   object fetchUrl extends StringField(this, 1000) with UnderscoreName {
     override def apply(in: MyType) = {
@@ -56,7 +56,7 @@ object KiwiRepository extends KiwiRepository with MongoMetaRecord[KiwiRepository
   }
 
   def findByGithubId(id: Long) = {
-    meta where (_.githubRepoId eqs id) get()
+    meta where (_.githubRepoId eqs id.toString) get()
   }
 
 }

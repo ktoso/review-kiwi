@@ -5,6 +5,7 @@ angular.module('kiwi.resource', ['ngResource']).
             { apiKey:'' },
             {
                 query:{method:'GET', isArray:true},
+                load:{method:'GET', isArray:true},
                 create:{method:'POST'}
             }
         );
