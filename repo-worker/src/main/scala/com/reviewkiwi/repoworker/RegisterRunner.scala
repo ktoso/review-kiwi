@@ -24,6 +24,6 @@ object RegisterRunner extends App {
     .name(readLine("name: "))
     .primaryEmail(readLine("email: "))
     .oauthToken(readLine("oauth token: "))
-    .save()
+    .save(true)
 
 }
