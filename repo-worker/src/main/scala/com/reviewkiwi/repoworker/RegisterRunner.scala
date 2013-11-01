@@ -40,6 +40,7 @@ object RegisterRunner extends App {
     user
       .repos(repo.name.get :: user.repos.get)
       .watchedRepos(repo.name.get :: user.repos.get)
+      watchers()
       .save(true)
   }
 

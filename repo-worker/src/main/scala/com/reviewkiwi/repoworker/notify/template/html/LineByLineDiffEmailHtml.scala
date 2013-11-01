@@ -160,6 +160,6 @@ class LineByLineDiffEmailHtml extends HtmlReport
 }
 
 object LineByLineDiffEmailHtml {
-  val GitHubUrl: Regex = """https?://github.com/(.*).git""".r
+  val GitHubUrl: Regex = """https?://.*.com/(.*).git""".r
 
 }
