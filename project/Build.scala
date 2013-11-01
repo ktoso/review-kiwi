@@ -41,7 +41,7 @@ object ReviewKiwiBuild extends Build {
         libraryDependencies ++=
           Seq(jGit, mongo, rogue, liftMongoRecord) ++
             Seq(gravatar, apacheCommonsEmail, scalaz, guava) ++
-            Seq(gitHub) ++
+            Seq(gitHub, apacheCommonsIo) ++
             scalate ++
             testing ++
             logging
@@ -56,7 +56,7 @@ object ReviewKiwiBuild extends Build {
         libraryDependencies ++= Seq(liftMongoRecord, rogue) ++
           akkaFull ++
           testing ++
-          Seq()
+          Seq("commons-io"            % "commons-io"              % "2.4")
       ) ++
       Seq(
         mainClass in (Compile, packageBin) := Some("com.reviewkiwi.repoworker.RepoWorkerRunner")
@@ -77,6 +77,7 @@ object ReviewKiwiBuild extends Build {
           "net.liftweb" %% "lift-webkit"  % liftVersion % "compile->default",
           "org.eclipse.jetty" % "jetty-webapp" % "8.0.1.v20110908" % "container",
           "javax.servlet" % "servlet-api" % "2.5" % "provided",
+          "commons-io"            % "commons-io"              % "2.4",
           akkaActor, akkaSlf4j, akkaTestKit,
           rogue, liftMongoRecord, mongo, logback, dispatch
         )

@@ -3,11 +3,11 @@ package com.reviewkiwi.repoworker.notify.template.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.diff.DiffEntry
-import org.apache.commons.io.FilenameUtils
 import org.eclipse.jgit.diff.DiffEntry.ChangeType
 import com.reviewkiwi.common.git.GitDiffs
 import com.reviewkiwi.repoworker.marker.{TodoLineMarker, InterestingLine, InterestingLineMarker}
 import com.reviewkiwi.repoworker.marker.scala.rogue.UpsertWithoutReturnNewLineMarker
+import com.reviewkiwi.repoworker.utils._
 
 trait HighlightInterestingLinesEmailHtml extends HtmlReport
   with GitDiffs {
@@ -34,7 +34,7 @@ trait HighlightInterestingLinesEmailHtml extends HtmlReport
     implicit val repo = git.getRepository
 
     val them = diffs filterNot { _.getChangeType == ChangeType.DELETE } map { diff =>
-      val fileName = FilenameUtils.getName(diff.getNewPath)
+      val fileName = FilenameUtils.getFilenameWithoutExtension(diff.getNewPath)
 
       val lines = diff.asDiffString.split("\n")
       lines.toList.zipWithIndex map { case (line, n) => markInterestingLines(fileName, line, n) }

@@ -72,7 +72,7 @@ object Dependencies {
   // Apache Commonds
   val apacheCommonsEmail    = "org.apache.commons"    % "commons-email"           % "1.2"
   val apacheCommonsNet      = "commons-net"           % "commons-net"             % "3.0.1"
-  val apacheCommonsIo       = "commons-io"            % "commons-io"              % "2.2"
+  val apacheCommonsIo       = "commons-io"            % "commons-io"              % "2.4"
 
   // Amazon Web Services
   val amazonJavaSdk         = "com.amazonaws"         %   "aws-java-sdk"          % "1.3.19"

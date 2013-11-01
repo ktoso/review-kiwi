@@ -14,14 +14,14 @@ import com.reviewkiwi.common.util.UniquifyVerb
 import com.reviewkiwi.common.css.CssStyles
 import util.matching.Regex
 import org.fusesource.scalate.{Binding, TemplateEngine}
-import org.apache.commons.io.FilenameUtils
 import org.eclipse.jgit.diff.DiffEntry.ChangeType
+import com.reviewkiwi.repoworker.utils._
 
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar with UniquifyVerb
   with GitWalks with GitObjects with GitDiffs
   with HighlightInterestingLinesEmailHtml
-  with CommitStatsEmailHtml{
+  with CommitStatsEmailHtml {
 
   val engine = new TemplateEngine
 

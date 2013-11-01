@@ -1,8 +1,6 @@
 package com.reviewkiwi.repoworker.notify.template.css
 
-import com.reviewkiwi.common.crypto.Base64
-import org.apache.commons.fileupload.util.Streams
-import org.apache.commons.io.FilenameUtils
+import com.reviewkiwi.repoworker.utils._
 
 object CssImages {
 
