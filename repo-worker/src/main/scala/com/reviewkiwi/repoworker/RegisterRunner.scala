@@ -28,13 +28,19 @@ object RegisterRunner extends App {
 
   while(true) {
     println()
+    val repoName = readLine("repo name: ")
+    val repoId = readLine("repoid: ")
+    val repoUrl = readLine("fetchUrl (https): ")
     val repo = KiwiRepository.createRecord
-      .name(readLine("repo name: "))
-      .githubRepoId(readLine("repoid: "))
-      .fetchUrl(readLine("fetchUrl (https): "))
+      .name(repoName)
+      .githubRepoId(repoId)
+      .fetchUrl(repoUrl)
       .save(true)
 
-    user.repos(repo.name.get :: user.repos.get).save(true)
+    user
+      .repos(repo.name.get :: user.repos.get)
+      .watchedRepos(repo.name.get :: user.repos.get)
+      .save(true)
   }
 
 
