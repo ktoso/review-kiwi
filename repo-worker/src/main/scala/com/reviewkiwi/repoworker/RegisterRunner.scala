@@ -20,10 +20,22 @@ object RegisterRunner extends App {
   val config = Config.readFromProperties()
   MongoInit.init(config)
 
-  KiwiUser.createRecord
+  val user = KiwiUser.createRecord
     .name(readLine("name: "))
     .primaryEmail(readLine("email: "))
     .oauthToken(readLine("oauth token: "))
     .save(true)
+
+  while(true) {
+    println()
+    val repo = KiwiRepository.createRecord
+      .name(readLine("repo name: "))
+      .githubRepoId(readLine("repoid: "))
+      .fetchUrl(readLine("fetchUrl (https): "))
+      .save(true)
+
+    user.repos(repo.name.get :: user.repos.get).save(true)
+  }
+
 
 }
