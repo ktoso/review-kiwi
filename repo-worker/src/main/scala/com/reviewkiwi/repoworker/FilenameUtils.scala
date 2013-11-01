@@ -29,12 +29,18 @@ object FilenameUtils {
 
   def getExtension(filename: String): String = {
     val idx = indexOfLastDot(filename)
-    filename.substring(idx, filename.length)
+    if (idx == -1)
+      filename
+    else
+      filename.substring(idx, filename.length)
   }
 
   def getName(filename: String) = {
     val idx = indexOfLastDot(filename)
-    filename.substring(0, idx)
+    if (idx == -1)
+      filename
+    else
+      filename.substring(0, idx)
   }
 
   // todo make sure
