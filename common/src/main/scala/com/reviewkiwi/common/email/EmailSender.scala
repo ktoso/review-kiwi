@@ -7,14 +7,14 @@ import scalaz.Scalaz._
 
 class EmailSender {
 
-  val FromEmail = "review-kiwi@project13.pl"
+  val FromEmail = "review-kiwi@ebay.com"
   val FromName = "Review Kiwi"
 
   // todo that's a mock
   object config {
-    val mailerUsername = "test-mailer@project13.pl"
+    val mailerUsername = "review-kiwi@ebay.com"
     val mailerPassword = "bananbananban"
-    val mailerHost = "smtp.gmail.com"
+    val mailerHost = Option(System.getenv("SMTP")) getorElse { throw new RuntimeException("Please set -DSMTP=.....!") }
     val mailerPort = 587
     val mailerTLS = true
   }
