@@ -14,7 +14,7 @@ class EmailSender {
   object config {
     val mailerUsername = "review-kiwi@ebay.com"
     val mailerPassword = "bananbananban"
-    val mailerHost = Option(System.getenv("SMTP")) getorElse { throw new RuntimeException("Please set -DSMTP=.....!") }
+    val mailerHost = Option(System.getenv("SMTP")) getOrElse { throw new RuntimeException("Please set -DSMTP=.....!") }
     val mailerPort = 587
     val mailerTLS = true
   }
