@@ -7,7 +7,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType
 import com.reviewkiwi.common.git.GitDiffs
 import com.reviewkiwi.repoworker.marker.{TodoLineMarker, InterestingLine, InterestingLineMarker}
 import com.reviewkiwi.repoworker.marker.scala.rogue.UpsertWithoutReturnNewLineMarker
-import com.reviewkiwi.repoworker.utils._
+import org.apache.commons.io._
 
 trait HighlightInterestingLinesEmailHtml extends HtmlReport
   with GitDiffs {

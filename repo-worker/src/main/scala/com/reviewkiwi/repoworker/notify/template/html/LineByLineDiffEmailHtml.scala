@@ -15,7 +15,7 @@ import com.reviewkiwi.common.css.CssStyles
 import util.matching.Regex
 import org.fusesource.scalate.{Binding, TemplateEngine}
 import org.eclipse.jgit.diff.DiffEntry.ChangeType
-import com.reviewkiwi.repoworker.utils._
+import org.apache.commons.io._
 
 class LineByLineDiffEmailHtml extends HtmlReport
   with Gravatar with UniquifyVerb

@@ -1,6 +1,7 @@
 package com.reviewkiwi.repoworker.notify.template.css
 
-import com.reviewkiwi.repoworker.utils._
+import org.apache.commons.io._
+
 
 object CssImages {
 
