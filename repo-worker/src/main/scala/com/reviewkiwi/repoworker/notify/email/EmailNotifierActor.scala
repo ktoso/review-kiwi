@@ -15,7 +15,7 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
 
   lazy val recipients = {
     import com.foursquare.rogue.Rogue._
-    KiwiUser.select(_.primaryEmail).fetch().toList
+    KiwiUser.select(_.primaryEmail).get()
   }
 
   def receive = {
