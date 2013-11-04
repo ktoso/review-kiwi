@@ -13,6 +13,7 @@ import com.reviewkiwi.model._
 class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtml, reportSender: ActorRef)
   extends Actor with Logging {
 
+  // todo fix me, only one target email
   lazy val recipients = {
     import com.foursquare.rogue.Rogue._
     KiwiUser.select(_.primaryEmail).get()
