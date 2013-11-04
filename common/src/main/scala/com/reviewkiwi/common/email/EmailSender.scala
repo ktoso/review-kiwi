@@ -22,7 +22,7 @@ class EmailSender {
   def send(to: String, title: String, htmlBody: String, txtBody: Option[String] = None, replyTo: Option[String] = None) {
     val email = new HtmlEmail
 
-//    email.setHostName(config.mailerHost)
+    email.setHostName("localhost")
 //    email.setAuthentication(config.mailerUsername, config.mailerPassword)
 //    email.setSmtpPort(config.mailerPort)
 //    email.setTLS(config.mailerTLS)
