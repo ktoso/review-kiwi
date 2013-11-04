@@ -51,7 +51,7 @@ class FreshCommitsExtractor extends Logging {
       .setForce(true)
       .call()
 
-    val commits = git.log
+    val commits = git.logt
       .setMaxCount(MaxFreshCommits)
       .call().toList
     commits
