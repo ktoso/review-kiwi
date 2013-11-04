@@ -82,10 +82,10 @@ class LineByLineDiffEmailHtml extends HtmlReport
   }
 
   def getCommitUrl(repoName: String, commitId: String): String =
-    """https://github.com/%s/commit/%s""".format(repoName, commitId)
+    """https://github.scm.corp.ebay.com/%s/commit/%s""".format(repoName, commitId)
 
   def getGitHubRepoUrl(repoName: String): String =
-    "https://github.com/" + repoName
+    "https://github.scm.corp.ebay.com/" + repoName
 
   case class ModifiedFile(changeType: DiffEntry.ChangeType, diff: DiffEntry) {
     val actionIcon = changeType match {
