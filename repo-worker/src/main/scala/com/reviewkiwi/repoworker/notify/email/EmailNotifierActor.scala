@@ -27,21 +27,31 @@ class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtm
       val git = Git.open(repoDir)
 
       logger.info("[%s] by [%s]: %s".format(revCommit.getName, revCommit.getAuthorIdent.getName, revCommit.getShortMessage))
-      val diffs = differ.diffWithParent(git, revCommit)
+      try {
+        val diffs = differ.diffWithParent(git, revCommit)
 
-      val body = htmlReporter.build(git, revCommit, diffs)
+        val body = htmlReporter.build(git, revCommit, diffs)
 
-      reportSender ! SendEmail(
-        recipients,
-        topic = "Commit [" + revCommit.getFullMessage.split("\n").head + "] pushed by " + revCommit.getAuthorIdent.getName ,
-        body = body,
-        replyTo = Some(revCommit.getAuthorIdent.getEmailAddress)
-      )
+        reportSender ! SendEmail(
+          recipients,
+          topic = "Commit [" + revCommit.getFullMessage.split("\n").head + "] pushed by " + revCommit.getAuthorIdent.getName ,
+          body = body,
+          replyTo = Some(revCommit.getAuthorIdent.getEmailAddress)
+        )
 
-      // mark as resolved, delete the request
-      deleteChangeToFetch(revCommit)
-      markAsNotified(git, revCommit)
-
+      } catch {
+        case ex: Exception =>
+          reportSender ! SendEmail(
+            recipients,
+            topic = "Commit [" + revCommit.getFullMessage.split("\n").head + "] pushed by " + revCommit.getAuthorIdent.getName + " (failed to diff)",
+            body = "Failed to create diff for this commit!",
+            replyTo = Some(revCommit.getAuthorIdent.getEmailAddress)
+          )
+      } finally {
+        // mark as resolved, delete the request
+        deleteChangeToFetch(revCommit)
+        markAsNotified(git, revCommit)
+      }
   }
 
   def alreadyNotified(git: Git, commit: RevCommit): Boolean = {
