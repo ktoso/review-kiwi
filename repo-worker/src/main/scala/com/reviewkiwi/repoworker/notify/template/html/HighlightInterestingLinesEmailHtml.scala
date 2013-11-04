@@ -34,7 +34,7 @@ trait HighlightInterestingLinesEmailHtml extends HtmlReport
     implicit val repo = git.getRepository
 
     val them = diffs filterNot { _.getChangeType == ChangeType.DELETE } map { diff =>
-      val fileName = FilenameUtils.getFilenameWithoutExtension(diff.getNewPath)
+      val fileName = FilenameUtils.getBaseName(diff.getNewPath)
 
       val lines = diff.asDiffString.split("\n")
       lines.toList.zipWithIndex map { case (line, n) => markInterestingLines(fileName, line, n) }
