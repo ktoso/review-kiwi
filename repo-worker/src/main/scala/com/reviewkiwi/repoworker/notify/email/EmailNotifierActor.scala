@@ -8,11 +8,15 @@ import org.eclipse.jgit.revwalk.RevCommit
 import com.reviewkiwi.repoworker.notify.template.html.LineByLineDiffEmailHtml
 import com.reviewkiwi.model.{ChangeFetched, ChangeToFetch}
 import com.weiglewilczek.slf4s.Logging
+import com.reviewkiwi.model._
 
 class EmailNotifierActor(differ: GitDiffer, htmlReporter: LineByLineDiffEmailHtml, reportSender: ActorRef)
   extends Actor with Logging {
 
-  val recipients = "konrad.malawski@softwaremill.pl" // todo hardcoded
+  lazy val recipients = {
+    import com.foursquare.rogue.Rogue._
+    KiwiUser.select(_.primaryEmail).fetch().toList
+  }
 
   def receive = {
     case NewCommit(revCommit, repoDir) if alreadyNotified(Git.open(repoDir), revCommit) =>
